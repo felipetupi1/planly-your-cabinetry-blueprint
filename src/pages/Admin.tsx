@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminPortfolio } from "@/components/admin/AdminPortfolio";
 
 const ADMIN_PASSWORD = "planly2024"; // Placeholder
 
@@ -70,39 +71,52 @@ export default function Admin() {
         <span className="font-heading text-lg font-bold text-foreground">Planly Admin</span>
       </header>
       <main className="max-w-5xl mx-auto p-6 md:p-10">
-        <h2 className="font-heading text-2xl font-bold text-foreground">Active Projects</h2>
-        <div className="mt-6 border border-border rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-secondary">
-                <th className="text-left p-4 font-medium text-foreground">Client</th>
-                <th className="text-left p-4 font-medium text-foreground">Spaces</th>
-                <th className="text-left p-4 font-medium text-foreground">Status</th>
-                <th className="text-left p-4 font-medium text-foreground">Date</th>
-                <th className="text-right p-4 font-medium text-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockProjects.map((p) => (
-                <tr key={p.id} className="border-t border-border">
-                  <td className="p-4 text-foreground font-medium">{p.client}</td>
-                  <td className="p-4 text-muted-foreground">{p.spaces.join(", ")}</td>
-                  <td className="p-4">
-                    <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusColors[p.status] || ""}`}>
-                      {p.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-muted-foreground">{p.date}</td>
-                  <td className="p-4 text-right">
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Tabs defaultValue="projects">
+          <TabsList>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="projects" className="mt-6">
+            <h2 className="font-heading text-2xl font-bold text-foreground">Active Projects</h2>
+            <div className="mt-6 border border-border rounded-xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-secondary">
+                    <th className="text-left p-4 font-medium text-foreground">Client</th>
+                    <th className="text-left p-4 font-medium text-foreground">Spaces</th>
+                    <th className="text-left p-4 font-medium text-foreground">Status</th>
+                    <th className="text-left p-4 font-medium text-foreground">Date</th>
+                    <th className="text-right p-4 font-medium text-foreground">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mockProjects.map((p) => (
+                    <tr key={p.id} className="border-t border-border">
+                      <td className="p-4 text-foreground font-medium">{p.client}</td>
+                      <td className="p-4 text-muted-foreground">{p.spaces.join(", ")}</td>
+                      <td className="p-4">
+                        <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusColors[p.status] || ""}`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-muted-foreground">{p.date}</td>
+                      <td className="p-4 text-right">
+                        <Button variant="outline" size="sm">
+                          Manage
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="portfolio" className="mt-6">
+            <AdminPortfolio />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
