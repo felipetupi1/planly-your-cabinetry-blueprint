@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, GripVertical } from "lucide-react";
+import { AdminServices } from "./AdminServices";
 
 export function AdminCMS() {
   const [hero, setHero] = useState({
@@ -48,6 +49,11 @@ export function AdminCMS() {
   return (
     <div className="space-y-10">
       <h2 className="text-2xl font-medium text-foreground tracking-wide">Site Content Manager</h2>
+
+      {/* Service Manager */}
+      <section className="border border-border rounded-lg p-5">
+        <AdminServices />
+      </section>
 
       {/* Hero */}
       <section className="border border-border rounded-lg p-5 space-y-3">
