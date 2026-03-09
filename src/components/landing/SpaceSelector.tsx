@@ -171,7 +171,11 @@ export function SpaceSelector() {
               </div>
             </div>
 
-            <Button variant="hero" className="w-full mt-6">
+            <p className="text-[10px] text-muted-foreground font-light mt-4 leading-relaxed">
+              Projects are based on client-provided measurements. An on-site measurement visit by your cabinetmaker prior to fabrication is always recommended.
+            </p>
+
+            <Button variant="hero" className="w-full mt-4">
               Proceed to checkout
             </Button>
           </div>

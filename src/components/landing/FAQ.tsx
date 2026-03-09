@@ -39,6 +39,10 @@ const faqs = [
     a: "7 business days from payment to first draft delivery. Revisions are typically turned around within 3–5 business days.",
   },
   {
+    q: "Are the measurements in my project exact?",
+    a: "Your project is developed based on the measurements you provide and is designed to give you and your cabinetmaker a clear, professional reference for quoting and planning. Before fabrication begins, your cabinetmaker should always conduct an on-site final measurement visit — especially to plan trims, transitions, and finishing details specific to your space.",
+  },
+  {
     q: "Do you work with architects and interior designers?",
     a: "Absolutely. Many of our clients are designers who need construction-ready documents for their cabinetry projects. We handle the technical documentation so you can focus on design.",
   },

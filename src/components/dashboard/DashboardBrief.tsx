@@ -61,6 +61,9 @@ export function DashboardBrief() {
       <p className="mt-2 text-muted-foreground font-light">
         Upload your floor plan, photos, and references. Add measurements and describe your vision.
       </p>
+      <p className="mt-1 text-xs text-muted-foreground font-light italic">
+        Don't worry about being perfectly precise — your cabinetmaker will conduct a final on-site measurement before fabrication.
+      </p>
 
       <div className="mt-8 space-y-6">
         {/* 3D Scan — device-aware */}
