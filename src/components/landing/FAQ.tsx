@@ -19,10 +19,6 @@ const faqs = [
     a: "Yes — especially if you want cabinetry that reaches the ceiling. Our measurement guide walks you through it.",
   },
   {
-    q: "Should I measure door and window trim?",
-    a: "Yes. Trim, casings, and baseboards affect how cabinetry fits. Our guide shows you exactly what to measure.",
-  },
-  {
     q: "Can I use the project with any cabinetmaker?",
     a: "Yes — that's the whole point. Take your documents to any cabinetmaker and get accurate, comparable quotes.",
   },
@@ -30,22 +26,38 @@ const faqs = [
     q: "What happens after 2 revision rounds?",
     a: "The project is considered approved and final files are released for download.",
   },
+  {
+    q: "Can I get an additional revision?",
+    a: "Yes. Additional revision rounds can be purchased from your dashboard. Pricing varies by space size: Small $65 / Medium $85 / Large $125.",
+  },
+  {
+    q: "What is your refund policy?",
+    a: "Full refund if cancelled before brief submission. 40% refund if cancelled after brief submission. No refund after first draft delivery.",
+  },
+  {
+    q: "How long does it take?",
+    a: "7 business days from payment to first draft delivery. Revisions are typically turned around within 3–5 business days.",
+  },
+  {
+    q: "Do you work with architects and interior designers?",
+    a: "Absolutely. Many of our clients are designers who need construction-ready documents for their cabinetry projects. We handle the technical documentation so you can focus on design.",
+  },
 ];
 
 export function FAQ() {
   return (
     <section className="py-24 px-6">
       <div className="max-w-3xl mx-auto">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold text-center text-foreground">
+        <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
           Frequently asked questions
         </h2>
         <Accordion type="single" collapsible className="mt-12">
           {faqs.map((faq, i) => (
             <AccordionItem key={i} value={`faq-${i}`} className="border-border">
-              <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline">
+              <AccordionTrigger className="text-left font-medium text-foreground hover:no-underline tracking-wide">
                 {faq.q}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground leading-relaxed">
+              <AccordionContent className="text-muted-foreground leading-relaxed font-light">
                 {faq.a}
               </AccordionContent>
             </AccordionItem>

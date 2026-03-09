@@ -8,37 +8,39 @@ const steps = [
   },
   {
     icon: CreditCard,
-    title: "Pay securely online",
+    title: "Pay securely",
     description: "Check out with Stripe. Multi-space discounts applied automatically.",
   },
   {
     icon: Upload,
     title: "Submit your brief",
-    description: "Upload photos, floor plans, measurements, and references. Tell us what you envision.",
+    description: "Upload photos, floor plans, measurements, and references.",
   },
   {
     icon: FileCheck,
     title: "Receive your project",
-    description: "Get construction-ready documents in 5 business days. Ready to bid.",
+    description: "Get construction-ready documents in 7 business days. Ready to bid.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section className="py-24 px-6 bg-secondary">
+    <section id="how-it-works" className="py-24 px-6 bg-secondary">
       <div className="max-w-5xl mx-auto">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold text-center text-foreground">
+        <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
           How it works
         </h2>
         <div className="mt-16 grid md:grid-cols-4 gap-10">
           {steps.map((step, i) => (
             <div key={i} className="text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                <step.icon className="w-7 h-7 text-primary" />
+              <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
+                <step.icon className="w-6 h-6 text-accent" />
               </div>
-              <div className="mt-2 text-sm font-medium text-muted-foreground">Step {i + 1}</div>
-              <h3 className="mt-3 font-heading text-xl font-semibold text-foreground">{step.title}</h3>
-              <p className="mt-2 text-muted-foreground leading-relaxed">{step.description}</p>
+              <div className="mt-3 text-xs font-medium text-muted-foreground tracking-widest uppercase">
+                Step {i + 1}
+              </div>
+              <h3 className="mt-3 text-lg font-medium text-foreground">{step.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light">{step.description}</p>
             </div>
           ))}
         </div>
