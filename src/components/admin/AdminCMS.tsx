@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, GripVertical } from "lucide-react";
+import { AdminServices } from "./AdminServices";
 
 export function AdminCMS() {
   const [hero, setHero] = useState({
