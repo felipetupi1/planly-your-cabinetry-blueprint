@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, CuboidIcon, Calculator } from "lucide-react";
+import { Minus, Plus, CuboidIcon, Calculator, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 type Size = "small" | "medium" | "large";
@@ -50,14 +50,12 @@ function sqftToSize(sqft: number): Size {
 
 export function SpaceSelector() {
   const [selectedSpaces, setSelectedSpaces] = useState<SelectedSpace[]>([]);
+  const [showCustom, setShowCustom] = useState(false);
 
   const addSpace = (space: SpaceConfig, size: Size) => {
     const price = space.prices[size];
     if (price === null) return;
-    setSelectedSpaces((prev) => [
-      ...prev,
-      { name: space.name, size, price, render3d: false },
-    ]);
+    setSelectedSpaces((prev) => [...prev, { name: space.name, size, price, render3d: false }]);
   };
 
   const removeSpace = (index: number) => {
@@ -70,20 +68,17 @@ export function SpaceSelector() {
     );
   };
 
-  const subtotal = selectedSpaces.reduce(
-    (sum, s) => sum + s.price + (s.render3d ? 150 : 0),
-    0
-  );
+  const subtotal = selectedSpaces.reduce((sum, s) => sum + s.price + (s.render3d ? 150 : 0), 0);
   const discount = getDiscount(selectedSpaces.length);
   const total = subtotal * (1 - discount);
 
   return (
     <section id="space-selector" className="py-24 px-6">
       <div className="max-w-5xl mx-auto">
-        <h2 className="font-heading text-3xl md:text-4xl font-bold text-center text-foreground">
+        <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
           Select your spaces
         </h2>
-        <p className="mt-3 text-center text-muted-foreground">
+        <p className="mt-3 text-center text-muted-foreground font-light">
           Choose your rooms and sizes. Multi-space discounts apply automatically.
         </p>
 
@@ -96,27 +91,55 @@ export function SpaceSelector() {
               selectedCount={selectedSpaces.filter((s) => s.name === space.name).length}
             />
           ))}
+
+          {/* Custom Space card */}
+          <div className="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors flex flex-col">
+            <h4 className="font-medium text-foreground">Custom Space</h4>
+            <p className="text-xs text-muted-foreground mt-1 flex-1">Don't see your space? Let us know.</p>
+            <button
+              onClick={() => setShowCustom(!showCustom)}
+              className="mt-4 flex items-center justify-center gap-1 text-sm font-medium text-accent hover:text-accent/80 transition-colors"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Request quote
+            </button>
+          </div>
         </div>
 
+        {showCustom && (
+          <div className="mt-6 max-w-md mx-auto border border-border rounded-lg p-6">
+            <h3 className="font-medium text-foreground">Custom Space Request</h3>
+            <p className="mt-1 text-sm text-muted-foreground font-light">Tell us about your space and we'll send you a quote.</p>
+            <div className="mt-4 space-y-3">
+              <Input placeholder="Space name (e.g. Laundry Room)" />
+              <Input placeholder="Your email" type="email" />
+              <textarea
+                placeholder="Describe the space and what you need..."
+                rows={3}
+                className="w-full border border-border rounded-lg p-3 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+              />
+              <Button variant="hero" className="w-full">Send request</Button>
+            </div>
+          </div>
+        )}
+
         {selectedSpaces.length > 0 && (
-          <div className="mt-12 border border-border rounded-xl p-6 max-w-2xl mx-auto">
-            <h3 className="font-heading text-xl font-semibold text-foreground">Your project</h3>
+          <div className="mt-12 border border-border rounded-lg p-6 max-w-2xl mx-auto">
+            <h3 className="text-xl font-medium text-foreground">Your project</h3>
             <div className="mt-4 space-y-3">
               {selectedSpaces.map((s, i) => (
                 <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                   <div className="flex-1">
                     <span className="font-medium text-foreground">{s.name}</span>
-                    <span className="text-muted-foreground text-sm ml-2">
-                      {SIZE_LABELS[s.size]}
-                    </span>
+                    <span className="text-muted-foreground text-sm ml-2 font-light">{SIZE_LABELS[s.size]}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => toggleRender(i)}
                       className={`text-xs px-3 py-1 rounded-full border transition-colors ${
                         s.render3d
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                          ? "bg-accent text-accent-foreground border-accent"
+                          : "border-border text-muted-foreground hover:border-accent hover:text-accent"
                       }`}
                     >
                       <CuboidIcon className="w-3 h-3 inline mr-1" />
@@ -139,12 +162,10 @@ export function SpaceSelector() {
                   <span className="text-success font-medium">
                     Multi-space discount ({Math.round(discount * 100)}% off)
                   </span>
-                  <span className="text-success font-medium">
-                    -${(subtotal * discount).toFixed(0)}
-                  </span>
+                  <span className="text-success font-medium">-${(subtotal * discount).toFixed(0)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-lg font-bold text-foreground">
+              <div className="flex justify-between text-lg font-medium text-foreground">
                 <span>Total</span>
                 <span>${total.toFixed(0)}</span>
               </div>
@@ -173,30 +194,27 @@ function SpaceCard({
   const [showCalc, setShowCalc] = useState(false);
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
-  const [ceilingHeight, setCeilingHeight] = useState("");
 
   const calculatedSqft = length && width ? parseFloat(length) * parseFloat(width) : null;
 
   const handleCalcApply = () => {
     if (calculatedSqft !== null && calculatedSqft > 0) {
       const size = sqftToSize(calculatedSqft);
-      if (space.prices[size] !== null) {
-        setSelectedSize(size);
-      }
+      if (space.prices[size] !== null) setSelectedSize(size);
     }
   };
 
   const currentPrice = space.prices[selectedSize];
 
   return (
-    <div className="border border-border rounded-xl p-5 hover:border-primary/30 transition-colors relative">
+    <div className="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors relative">
       {selectedCount > 0 && (
-        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center font-medium">
           {selectedCount}
         </div>
       )}
-      <h4 className="font-heading font-semibold text-foreground">{space.name}</h4>
-      <p className="text-xs text-muted-foreground mt-1">{space.hint}</p>
+      <h4 className="font-medium text-foreground">{space.name}</h4>
+      <p className="text-xs text-muted-foreground mt-1 font-light">{space.hint}</p>
 
       <div className="mt-4 space-y-1.5">
         {(["small", "medium", "large"] as Size[]).map((size) => {
@@ -208,7 +226,7 @@ function SpaceCard({
               onClick={() => setSelectedSize(size)}
               className={`w-full text-left text-sm px-3 py-2 rounded-lg flex justify-between transition-colors ${
                 selectedSize === size
-                  ? "bg-primary/10 text-primary font-medium"
+                  ? "bg-accent/10 text-accent font-medium"
                   : "text-muted-foreground hover:bg-secondary"
               }`}
             >
@@ -219,10 +237,9 @@ function SpaceCard({
         })}
       </div>
 
-      {/* Help me calculate toggle */}
       <button
         onClick={() => setShowCalc(!showCalc)}
-        className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+        className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-accent transition-colors"
       >
         <Calculator className="w-3.5 h-3.5" />
         {showCalc ? "Hide calculator" : "Help me calculate"}
@@ -233,35 +250,12 @@ function SpaceCard({
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-[11px] text-muted-foreground">Length (ft)</label>
-              <Input
-                type="number"
-                value={length}
-                onChange={(e) => setLength(e.target.value)}
-                className="h-8 text-sm"
-                min="0"
-              />
+              <Input type="number" value={length} onChange={(e) => setLength(e.target.value)} className="h-8 text-sm" min="0" />
             </div>
             <div>
               <label className="text-[11px] text-muted-foreground">Width (ft)</label>
-              <Input
-                type="number"
-                value={width}
-                onChange={(e) => setWidth(e.target.value)}
-                className="h-8 text-sm"
-                min="0"
-              />
+              <Input type="number" value={width} onChange={(e) => setWidth(e.target.value)} className="h-8 text-sm" min="0" />
             </div>
-          </div>
-          <div>
-            <label className="text-[11px] text-muted-foreground">Ceiling height (ft)</label>
-            <Input
-              type="number"
-              value={ceilingHeight}
-              onChange={(e) => setCeilingHeight(e.target.value)}
-              className="h-8 text-sm"
-              min="0"
-              placeholder="Optional"
-            />
           </div>
           {calculatedSqft !== null && calculatedSqft > 0 && (
             <div className="text-xs text-foreground font-medium pt-1">
@@ -271,7 +265,7 @@ function SpaceCard({
           <button
             onClick={handleCalcApply}
             disabled={!calculatedSqft || calculatedSqft <= 0}
-            className="w-full text-xs font-medium text-primary hover:text-primary/80 disabled:opacity-40 disabled:cursor-not-allowed pt-1"
+            className="w-full text-xs font-medium text-accent hover:text-accent/80 disabled:opacity-40 disabled:cursor-not-allowed pt-1"
           >
             Apply size
           </button>
@@ -281,7 +275,7 @@ function SpaceCard({
       <button
         onClick={() => currentPrice !== null && onAdd(space, selectedSize)}
         disabled={currentPrice === null}
-        className="mt-4 w-full flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors disabled:opacity-40"
+        className="mt-4 w-full flex items-center justify-center gap-1 text-sm font-medium text-accent hover:text-accent/80 transition-colors disabled:opacity-40"
       >
         <Plus className="w-4 h-4" />
         Add space

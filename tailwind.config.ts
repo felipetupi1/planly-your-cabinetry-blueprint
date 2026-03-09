@@ -62,14 +62,22 @@ export default {
           light: "hsl(var(--navy-light))",
           foreground: "hsl(var(--navy-foreground))",
         },
+        "burnt-orange": {
+          DEFAULT: "hsl(var(--burnt-orange))",
+          foreground: "hsl(var(--burnt-orange-foreground))",
+        },
+        "warm-gray": {
+          DEFAULT: "hsl(var(--warm-gray))",
+          foreground: "hsl(var(--warm-gray-foreground))",
+        },
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
       },
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-        heading: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        sans: ['"Outfit"', 'system-ui', 'sans-serif'],
+        heading: ['"Outfit"', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -78,20 +86,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
