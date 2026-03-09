@@ -9,7 +9,7 @@
     --background: 0 0% 100%;
     --foreground: 218 45% 20%;
 
-    --card: 30 18% 92%;
+    --card: 0 0% 100%;
     --card-foreground: 218 45% 20%;
 
     --popover: 0 0% 100%;
@@ -34,7 +34,7 @@
     --input: 30 10% 85%;
     --ring: 18 64% 47%;
 
-    --radius: 0.5rem;
+    --radius: 2px;
 
     --sidebar-background: 218 45% 20%;
     --sidebar-foreground: 0 0% 95%;
@@ -44,6 +44,9 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 218 40% 28%;
     --sidebar-ring: 18 64% 47%;
+
+    --admin-sidebar: 218 50% 13%;
+    --admin-sidebar-foreground: 0 0% 95%;
 
     --navy: 218 45% 20%;
     --navy-light: 218 30% 35%;
@@ -86,6 +89,8 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 218 20% 18%;
     --sidebar-ring: 18 64% 55%;
+    --admin-sidebar: 218 30% 6%;
+    --admin-sidebar-foreground: 0 0% 95%;
     --navy: 218 45% 60%;
     --navy-light: 218 30% 50%;
     --navy-foreground: 0 0% 100%;
@@ -106,12 +111,79 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-weight: 300;
+    font-size: 12px;
+    line-height: 1.7;
     letter-spacing: 0.02em;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', system-ui, sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+}
+
+/* Dashboard-specific typography */
+@layer components {
+  .dash-title {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .dash-label {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .dash-body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .dash-number {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    color: hsl(var(--navy));
+  }
+
+  .dash-nav-item {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: hsl(var(--primary-foreground) / 0.6);
+    padding: 10px 16px;
+    display: block;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .dash-nav-item:hover {
+    color: hsl(var(--primary-foreground) / 0.85);
+  }
+
+  .dash-nav-item.active {
+    color: hsl(var(--primary-foreground));
+    border-left-color: hsl(var(--accent));
+  }
+
+  .dash-card {
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--warm-gray));
+    border-radius: 3px;
+    padding: 24px;
   }
 }
