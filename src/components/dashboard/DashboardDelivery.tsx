@@ -20,6 +20,11 @@ export function DashboardDelivery({ currentStage }: { currentStage: string }) {
           <p className="text-muted-foreground font-light">
             Your project is ready. Take these documents to any cabinetmaker and get accurate, comparable quotes.
           </p>
+          <div className="rounded-lg bg-warm-gray/50 px-5 py-4">
+            <p className="text-sm text-foreground font-light leading-relaxed">
+              Your construction documents are ready. Before fabrication begins, make sure your cabinetmaker visits the site for a final measurement — particularly to plan trims, transitions, and any site-specific adjustments.
+            </p>
+          </div>
           <div className="border border-border rounded-lg p-5 flex items-center justify-between">
             <div>
               <p className="font-medium text-foreground">Project Documents (PDF)</p>
