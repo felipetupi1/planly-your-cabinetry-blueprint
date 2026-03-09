@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, Camera, Calendar, Ruler } from "lucide-react";
+import { Upload, Camera, Calendar, Ruler, Smartphone } from "lucide-react";
 
 interface MeasurementData {
   length: string;
@@ -17,27 +17,28 @@ interface MeasurementData {
 }
 
 const emptyMeasurements: MeasurementData = {
-  length: "",
-  width: "",
-  ceilingHeight: "",
-  doorWidths: "",
-  doorHeights: "",
-  windowWidths: "",
-  windowHeights: "",
-  trimDepth: "",
-  baseboardHeight: "",
-  obstacles: "",
+  length: "", width: "", ceilingHeight: "",
+  doorWidths: "", doorHeights: "", windowWidths: "", windowHeights: "",
+  trimDepth: "", baseboardHeight: "", obstacles: "",
 };
+
+function useIsIPhone() {
+  const [isIPhone, setIsIPhone] = useState(false);
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    setIsIPhone(/iPhone/i.test(ua) && /Safari/i.test(ua));
+  }, []);
+  return isIPhone;
+}
 
 export function DashboardBrief() {
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [measurements, setMeasurements] = useState<MeasurementData>(emptyMeasurements);
+  const isIPhone = useIsIPhone();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
-    }
+    if (e.target.files) setFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
   };
 
   const updateMeasurement = (key: keyof MeasurementData, value: string) => {
@@ -51,48 +52,66 @@ export function DashboardBrief() {
 
   const sizeTier =
     sqft !== null && sqft > 0
-      ? sqft >= 160
-        ? "Large (over 160 sq/ft)"
-        : sqft >= 80
-        ? "Medium (80–160 sq/ft)"
-        : "Small (under 80 sq/ft)"
+      ? sqft >= 160 ? "Large (over 160 sq/ft)" : sqft >= 80 ? "Medium (80–160 sq/ft)" : "Small (under 80 sq/ft)"
       : null;
 
   return (
     <div>
-      <h2 className="font-heading text-2xl font-bold text-foreground">Submit Brief</h2>
-      <p className="mt-2 text-muted-foreground">
+      <h2 className="text-2xl font-medium text-foreground tracking-wide">Submit Brief</h2>
+      <p className="mt-2 text-muted-foreground font-light">
         Upload your floor plan, photos, and references. Add measurements and describe your vision.
       </p>
 
       <div className="mt-8 space-y-6">
+        {/* 3D Scan — device-aware */}
+        <div className="border border-border rounded-lg p-5 flex items-start gap-4">
+          {isIPhone ? (
+            <>
+              <Smartphone className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-foreground">Scan your space in 3D</h4>
+                <p className="text-sm text-muted-foreground mt-1 font-light">
+                  Use your iPhone's camera to create a 3D scan of your room.
+                </p>
+                <Button variant="hero" size="sm" className="mt-3" onClick={() => window.open("https://poly.cam/capture", "_blank")}>
+                  Scan your space
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Camera className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-foreground">3D Room Scan</h4>
+                <p className="text-sm text-muted-foreground mt-1 font-light">
+                  3D scanning requires an iPhone. You can upload photos and use our measurement form below — it works just as well.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+
         {/* File upload */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Upload files
-          </label>
-          <label className="border-2 border-dashed border-border rounded-xl p-8 flex flex-col items-center cursor-pointer hover:border-primary/40 transition-colors">
+          <label className="block text-xs text-muted-foreground mb-2 tracking-wide uppercase">Upload files</label>
+          <label className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center cursor-pointer hover:border-accent/40 transition-colors">
             <Upload className="w-8 h-8 text-muted-foreground" />
-            <span className="mt-2 text-sm text-muted-foreground">
-              Floor plan, photos, reference images
-            </span>
+            <span className="mt-2 text-sm text-muted-foreground font-light">Floor plan, photos, reference images — drag and drop or click</span>
             <input type="file" multiple className="hidden" onChange={handleFileChange} />
           </label>
           {files.length > 0 && (
             <div className="mt-3 space-y-1">
               {files.map((f, i) => (
-                <div key={i} className="text-sm text-muted-foreground">
-                  {f.name}
-                </div>
+                <div key={i} className="text-sm text-muted-foreground font-light">{f.name}</div>
               ))}
             </div>
           )}
         </div>
 
         {/* Measurement form */}
-        <div className="border border-border rounded-xl p-5">
+        <div className="border border-border rounded-lg p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Ruler className="w-5 h-5 text-primary" />
+            <Ruler className="w-5 h-5 text-accent" />
             <h4 className="font-medium text-foreground">Room measurements</h4>
           </div>
           <div className="grid sm:grid-cols-3 gap-4">
@@ -110,9 +129,7 @@ export function DashboardBrief() {
             </div>
           </div>
           {sqft !== null && sqft > 0 && (
-            <p className="mt-3 text-sm font-medium text-primary">
-              {sqft.toFixed(0)} sq/ft — {sizeTier}
-            </p>
+            <p className="mt-3 text-sm font-medium text-accent">{sqft.toFixed(0)} sq/ft — {sizeTier}</p>
           )}
           <div className="grid sm:grid-cols-2 gap-4 mt-4">
             <div>
@@ -154,40 +171,37 @@ export function DashboardBrief() {
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Describe your project
-          </label>
+          <label className="block text-xs text-muted-foreground mb-2 tracking-wide uppercase">Describe your project</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Tell us about your vision — style, colors, materials, layout preferences..."
             rows={5}
-            className="w-full border border-border rounded-xl p-4 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+            className="w-full border border-border rounded-lg p-4 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
           />
         </div>
 
-        {/* 3D Scan */}
-        <div className="border border-border rounded-xl p-5 flex items-start gap-4">
-          <Camera className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+        {/* Room Mapping Tool placeholder */}
+        <div className="border border-border rounded-lg p-5 flex items-start gap-4">
+          <Ruler className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-medium text-foreground">3D Room Scan</h4>
-            <p className="text-sm text-muted-foreground mt-1">
-              If you have an iPhone Pro with LiDAR, you can scan your room directly from this browser.
-              For other devices, photo upload + the measurement form above work just as well.
+            <h4 className="font-medium text-foreground">Room Mapping Tool</h4>
+            <p className="text-sm text-muted-foreground mt-1 font-light">
+              Place doors, windows, and fixtures on your floor plan interactively.
             </p>
             <Button variant="outline" size="sm" className="mt-3">
-              Launch scanner
+              Open room tool
             </Button>
           </div>
         </div>
 
         {/* Calendly */}
-        <div className="border border-border rounded-xl p-5 flex items-start gap-4">
-          <Calendar className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
+        <div className="border border-border rounded-lg p-5 flex items-start gap-4">
+          <Calendar className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-medium text-foreground">Schedule a call</h4>
-            <p className="text-sm text-muted-foreground mt-1">
-              Prefer to discuss your project live? Book a quick call.
+            <h4 className="font-medium text-foreground">Book a 20-min consultation</h4>
+            <p className="text-sm text-muted-foreground mt-1 font-light">
+              Prefer to discuss your project live? Schedule a quick call with our team.
             </p>
             <Button variant="outline" size="sm" className="mt-3">
               Open calendar
@@ -195,9 +209,7 @@ export function DashboardBrief() {
           </div>
         </div>
 
-        <Button variant="hero" className="w-full">
-          Submit brief
-        </Button>
+        <Button variant="hero" className="w-full">Submit brief</Button>
       </div>
     </div>
   );

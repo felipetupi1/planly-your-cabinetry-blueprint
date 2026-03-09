@@ -1,16 +1,8 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { FileText, Upload, Eye, Download, MessageSquare } from "lucide-react";
 import { DashboardProject } from "@/components/dashboard/DashboardProject";
@@ -19,31 +11,25 @@ import { DashboardReview } from "@/components/dashboard/DashboardReview";
 import { DashboardDelivery } from "@/components/dashboard/DashboardDelivery";
 import { DashboardMessages } from "@/components/dashboard/DashboardMessages";
 
-const stages = ["Brief", "In Progress", "Review", "Approved", "Delivered"] as const;
+const stages = ["Payment", "Brief", "In Progress", "1st Draft", "Revision 1", "Revision 2", "Final Production", "Delivered"] as const;
 type Stage = (typeof stages)[number];
 
 const sections = [
   { id: "project", label: "My Project", icon: FileText },
-  { id: "brief", label: "Submit Brief", icon: Upload },
+  { id: "brief", label: "Brief", icon: Upload },
   { id: "review", label: "Review", icon: Eye },
-  { id: "delivery", label: "Final Delivery", icon: Download },
+  { id: "delivery", label: "Delivery", icon: Download },
   { id: "messages", label: "Messages", icon: MessageSquare },
 ];
 
 function DashboardContent({ activeSection, currentStage }: { activeSection: string; currentStage: Stage }) {
   switch (activeSection) {
-    case "project":
-      return <DashboardProject />;
-    case "brief":
-      return <DashboardBrief />;
-    case "review":
-      return <DashboardReview currentStage={currentStage} />;
-    case "delivery":
-      return <DashboardDelivery currentStage={currentStage} />;
-    case "messages":
-      return <DashboardMessages />;
-    default:
-      return <DashboardProject />;
+    case "project": return <DashboardProject />;
+    case "brief": return <DashboardBrief />;
+    case "review": return <DashboardReview currentStage={currentStage} />;
+    case "delivery": return <DashboardDelivery currentStage={currentStage} />;
+    case "messages": return <DashboardMessages />;
+    default: return <DashboardProject />;
   }
 }
 
@@ -58,11 +44,13 @@ function DashboardSidebar({
   const collapsed = state === "collapsed";
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="bg-primary text-primary-foreground">
       <SidebarContent className="pt-4">
         <div className="px-4 pb-4">
           {!collapsed && (
-            <span className="font-heading text-lg font-bold text-foreground">Measured</span>
+            <span className="text-sm font-medium tracking-[4px] uppercase text-primary-foreground">
+              MEASURED
+            </span>
           )}
         </div>
         <SidebarGroup>
@@ -72,10 +60,12 @@ function DashboardSidebar({
                 <SidebarMenuItem key={s.id}>
                   <SidebarMenuButton
                     onClick={() => setActiveSection(s.id)}
-                    className={activeSection === s.id ? "bg-primary/10 text-primary font-medium" : ""}
+                    className={activeSection === s.id
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"}
                   >
                     <s.icon className="w-4 h-4 mr-2" />
-                    {!collapsed && <span>{s.label}</span>}
+                    {!collapsed && <span className="tracking-wide">{s.label}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -100,16 +90,17 @@ export default function Dashboard() {
           <header className="h-14 flex items-center border-b border-border px-4 gap-4">
             <SidebarTrigger />
             <div className="flex-1" />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto">
               {stages.map((stage, i) => {
+                const currentIdx = stages.indexOf(currentStage);
                 const isActive = stage === currentStage;
-                const isPast = stages.indexOf(currentStage) > i;
+                const isPast = i < currentIdx;
                 return (
-                  <div key={stage} className="flex items-center gap-2">
+                  <div key={stage} className="flex items-center gap-1.5">
                     <span
-                      className={`text-xs font-medium px-3 py-1 rounded-full ${
+                      className={`text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap tracking-wide ${
                         isActive
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-accent text-accent-foreground"
                           : isPast
                           ? "bg-success/20 text-success"
                           : "bg-secondary text-muted-foreground"
@@ -118,7 +109,7 @@ export default function Dashboard() {
                       {stage}
                     </span>
                     {i < stages.length - 1 && (
-                      <div className={`w-6 h-px ${isPast ? "bg-success" : "bg-border"}`} />
+                      <div className={`w-4 h-px ${isPast ? "bg-success" : "bg-border"}`} />
                     )}
                   </div>
                 );

@@ -1,10 +1,13 @@
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { ProjectSamples } from "@/components/landing/ProjectSamples";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { SpaceSelector } from "@/components/landing/SpaceSelector";
-import { HowToMeasure } from "@/components/landing/HowToMeasure";
 import { WhatsIncluded } from "@/components/landing/WhatsIncluded";
+import { HowToMeasure } from "@/components/landing/HowToMeasure";
 import { Portfolio } from "@/components/landing/Portfolio";
+import { Reviews } from "@/components/landing/Reviews";
+import { Contact } from "@/components/landing/Contact";
 import { FAQ } from "@/components/landing/FAQ";
 import { Footer } from "@/components/landing/Footer";
 
@@ -14,12 +17,15 @@ const Index = () => {
       <Navbar />
       <main className="pt-16">
         <HeroSection />
+        <ProjectSamples />
         <HowItWorks />
         <SpaceSelector />
-        <HowToMeasure />
         <WhatsIncluded />
+        <HowToMeasure />
         <Portfolio />
+        <Reviews />
         <FAQ />
+        <Contact />
       </main>
       <Footer />
     </>
