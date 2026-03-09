@@ -67,7 +67,7 @@ export const portfolioItems: PortfolioItem[] = [
     id: "d3",
     src: docKitchen,
     category: "document",
-    spaceType: "Vanity / Bathroom",
-    description: "Vanity elevation with plumbing rough-in details",
+     spaceType: "Bathroom",
+     description: "Vanity elevation with plumbing rough-in details",
   },
 ];

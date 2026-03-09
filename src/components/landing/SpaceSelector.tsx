@@ -16,7 +16,7 @@ const SPACES: SpaceConfig[] = [
   { name: "Living / Family Room", hint: "Most living rooms are 150–250 sq/ft", prices: { small: 300, medium: 500, large: 750 } },
   { name: "Closet", hint: "Most closets are 25–100 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
   { name: "Pantry", hint: "Most pantries are under 80 sq/ft", prices: { small: 200, medium: 350, large: null } },
-  { name: "Vanity / Bathroom", hint: "Most bathrooms are 40–100 sq/ft", prices: { small: 200, medium: 350, large: 500 } },
+  { name: "Bathroom", hint: "Most bathrooms are 40–100 sq/ft", prices: { small: 200, medium: 350, large: 500 } },
   { name: "Home Office", hint: "Most home offices are 80–150 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
   { name: "Bedroom", hint: "Most bedrooms are 100–200 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
   { name: "Mudroom", hint: "Most mudrooms are 40–100 sq/ft", prices: { small: 200, medium: 300, large: 450 } },

@@ -4,7 +4,7 @@ import { Upload, GripVertical, Trash2, Plus } from "lucide-react";
 
 const SPACE_TYPES = [
   "Kitchen", "Living / Family Room", "Closet", "Pantry",
-  "Vanity / Bathroom", "Home Office", "Bedroom", "Mudroom",
+  "Bathroom", "Home Office", "Bedroom", "Mudroom",
 ];
 
 const CATEGORIES = ["render", "document"] as const;
