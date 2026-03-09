@@ -39,8 +39,8 @@ export const portfolioItems: PortfolioItem[] = [
     id: "r4",
     src: renderVanity,
     category: "render",
-    spaceType: "Vanity / Bathroom",
-    description: "Floating double vanity with marble backsplash",
+     spaceType: "Bathroom",
+     description: "Floating double vanity with marble backsplash",
   },
   {
     id: "r5",
