@@ -1,10 +1,5 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
-  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar,
-} from "@/components/ui/sidebar";
-import { FileText, Upload, Eye, Download, MessageSquare } from "lucide-react";
 import { DashboardProject } from "@/components/dashboard/DashboardProject";
 import { DashboardBrief } from "@/components/dashboard/DashboardBrief";
 import { DashboardReview } from "@/components/dashboard/DashboardReview";
@@ -15,12 +10,72 @@ const stages = ["Payment", "Brief", "In Progress", "1st Draft", "Revision 1", "R
 type Stage = (typeof stages)[number];
 
 const sections = [
-  { id: "project", label: "My Project", icon: FileText },
-  { id: "brief", label: "Brief", icon: Upload },
-  { id: "review", label: "Review", icon: Eye },
-  { id: "delivery", label: "Delivery", icon: Download },
-  { id: "messages", label: "Messages", icon: MessageSquare },
+  { id: "project", label: "My Project" },
+  { id: "brief", label: "Brief" },
+  { id: "review", label: "Review" },
+  { id: "delivery", label: "Delivery" },
+  { id: "messages", label: "Messages" },
 ];
+
+function StatusBar({ currentStage }: { currentStage: Stage }) {
+  const currentIdx = stages.indexOf(currentStage);
+
+  return (
+    <div className="w-full border-b border-border bg-background px-12 py-5">
+      <div className="max-w-[800px]">
+        {/* Progress line */}
+        <div className="relative flex items-center">
+          {stages.map((stage, i) => {
+            const isActive = i === currentIdx;
+            const isPast = i < currentIdx;
+            const isFuture = i > currentIdx;
+
+            return (
+              <div key={stage} className="flex items-center flex-1 last:flex-none">
+                {/* Dot */}
+                <div
+                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                    isActive ? "bg-accent" : isPast ? "bg-primary" : "bg-warm-gray"
+                  }`}
+                />
+                {/* Line */}
+                {i < stages.length - 1 && (
+                  <div
+                    className={`flex-1 h-[3px] ${
+                      isPast ? "bg-primary" : "bg-warm-gray"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {/* Labels */}
+        <div className="relative flex mt-2">
+          {stages.map((stage, i) => {
+            const isActive = i === currentIdx;
+            const isPast = i < currentIdx;
+            return (
+              <div key={stage} className="flex-1 last:flex-none">
+                <span
+                  className={`text-[9px] font-light tracking-[1px] uppercase whitespace-nowrap ${
+                    isActive
+                      ? "text-accent font-normal"
+                      : isPast
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {stage}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DashboardContent({ activeSection, currentStage }: { activeSection: string; currentStage: Stage }) {
   switch (activeSection) {
@@ -33,94 +88,42 @@ function DashboardContent({ activeSection, currentStage }: { activeSection: stri
   }
 }
 
-function DashboardSidebar({
-  activeSection,
-  setActiveSection,
-}: {
-  activeSection: string;
-  setActiveSection: (s: string) => void;
-}) {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
-
-  return (
-    <Sidebar collapsible="icon" className="bg-primary text-primary-foreground">
-      <SidebarContent className="pt-4">
-        <div className="px-4 pb-4">
-          {!collapsed && (
-            <span className="text-sm font-medium tracking-[4px] uppercase text-primary-foreground">
-              MEASURED
-            </span>
-          )}
-        </div>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {sections.map((s) => (
-                <SidebarMenuItem key={s.id}>
-                  <SidebarMenuButton
-                    onClick={() => setActiveSection(s.id)}
-                    className={activeSection === s.id
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"}
-                  >
-                    <s.icon className="w-4 h-4 mr-2" />
-                    {!collapsed && <span className="tracking-wide">{s.label}</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-}
-
 export default function Dashboard() {
   const { projectId } = useParams();
   const [activeSection, setActiveSection] = useState("project");
   const currentStage: Stage = "Brief";
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <DashboardSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-        <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center border-b border-border px-4 gap-4">
-            <SidebarTrigger />
-            <div className="flex-1" />
-            <div className="flex items-center gap-1.5 overflow-x-auto">
-              {stages.map((stage, i) => {
-                const currentIdx = stages.indexOf(currentStage);
-                const isActive = stage === currentStage;
-                const isPast = i < currentIdx;
-                return (
-                  <div key={stage} className="flex items-center gap-1.5">
-                    <span
-                      className={`text-[10px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap tracking-wide ${
-                        isActive
-                          ? "bg-accent text-accent-foreground"
-                          : isPast
-                          ? "bg-success/20 text-success"
-                          : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      {stage}
-                    </span>
-                    {i < stages.length - 1 && (
-                      <div className={`w-4 h-px ${isPast ? "bg-success" : "bg-border"}`} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </header>
-          <main className="flex-1 p-6 md:p-10 max-w-4xl">
-            <DashboardContent activeSection={activeSection} currentStage={currentStage} />
-          </main>
+    <div className="min-h-screen flex">
+      {/* Fixed sidebar */}
+      <aside className="w-[220px] min-h-screen bg-primary flex flex-col flex-shrink-0">
+        <div className="px-5 py-6">
+          <span className="text-[11px] font-medium tracking-[4px] uppercase text-primary-foreground">
+            MEASURED
+          </span>
         </div>
+        <nav className="mt-4 flex-1">
+          {sections.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setActiveSection(s.id)}
+              className={`dash-nav-item w-full text-left ${activeSection === s.id ? "active" : ""}`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-h-screen bg-background">
+        <StatusBar currentStage={currentStage} />
+        <main className="flex-1 px-12 py-8">
+          <div className="max-w-[800px]">
+            <DashboardContent activeSection={activeSection} currentStage={currentStage} />
+          </div>
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
