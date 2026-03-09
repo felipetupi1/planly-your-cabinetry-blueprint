@@ -50,6 +50,11 @@ export function AdminCMS() {
     <div className="space-y-10">
       <h2 className="text-2xl font-medium text-foreground tracking-wide">Site Content Manager</h2>
 
+      {/* Service Manager */}
+      <section className="border border-border rounded-lg p-5">
+        <AdminServices />
+      </section>
+
       {/* Hero */}
       <section className="border border-border rounded-lg p-5 space-y-3">
         <h3 className="text-lg font-medium text-foreground">Hero</h3>
