@@ -39,8 +39,8 @@ export const portfolioItems: PortfolioItem[] = [
     id: "r4",
     src: renderVanity,
     category: "render",
-    spaceType: "Vanity / Bathroom",
-    description: "Floating double vanity with marble backsplash",
+     spaceType: "Bathroom",
+     description: "Floating double vanity with marble backsplash",
   },
   {
     id: "r5",
@@ -67,7 +67,7 @@ export const portfolioItems: PortfolioItem[] = [
     id: "d3",
     src: docKitchen,
     category: "document",
-    spaceType: "Vanity / Bathroom",
-    description: "Vanity elevation with plumbing rough-in details",
+     spaceType: "Bathroom",
+     description: "Vanity elevation with plumbing rough-in details",
   },
 ];

@@ -18,7 +18,7 @@ const mockReviews: Review[] = [
   { id: "3", text: "Fast delivery and professional communication throughout.", clientName: "Carlos M.", spaceType: "Pantry", rating: 5, status: "approved" },
 ];
 
-const SPACE_TYPES = ["Kitchen", "Living / Family Room", "Closet", "Pantry", "Vanity / Bathroom", "Home Office", "Bedroom", "Mudroom"];
+const SPACE_TYPES = ["Kitchen", "Living / Family Room", "Closet", "Pantry", "Bathroom", "Home Office", "Bedroom", "Mudroom"];
 
 export function AdminReviews() {
   const [reviews, setReviews] = useState<Review[]>(mockReviews);
