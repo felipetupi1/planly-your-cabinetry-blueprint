@@ -1,80 +1,63 @@
-import { Ruler, ArrowUpDown, DoorOpen, Square, Layers, AlertTriangle, Lightbulb, Scan } from "lucide-react";
-
-const steps = [
+const tips = [
   {
-    icon: Ruler,
-    title: "Room width and length",
-    description: "Measure at floor level, wall to wall.",
+    title: "Room dimensions",
+    text: "Measure width and length at floor level, not at ceiling height. Walls are rarely perfectly square, so measure in two spots if possible.",
   },
   {
-    icon: ArrowUpDown,
     title: "Ceiling height",
-    description: "From floor to ceiling — essential for full-height cabinetry.",
+    text: "Essential if you want cabinetry that reaches the ceiling. Measure from finished floor to finished ceiling, not to any beam or soffit.",
   },
   {
-    icon: DoorOpen,
-    title: "Door openings",
-    description: "Width and height, trim to trim. Note swing direction.",
+    title: "Doors — think trim, not opening",
+    text: "Measure the full width and height from trim to trim, not just the opening. Note which way the door swings — it affects cabinet placement.",
   },
   {
-    icon: Square,
-    title: "Window openings",
-    description: "Width, height, and sill height from floor — trim to trim.",
+    title: "Windows — sill matters",
+    text: "Measure width and height trim to trim. Also note the sill height from the floor — this determines how high base cabinets can go on that wall.",
   },
   {
-    icon: Layers,
-    title: "Baseboard height",
-    description: "Note baseboard height along all walls.",
+    title: "Baseboards — they take up space",
+    text: "Note the height and depth of your baseboards. Cabinets need to clear them or sit on top of them.",
   },
   {
-    icon: AlertTriangle,
-    title: "Obstacles",
-    description: "Vents, radiators, electrical panels, pipes — anything that protrudes from a wall.",
+    title: "Obstacles worth noting",
+    text: "Radiators, vents, electrical panels, exposed pipes. Even a rough location on a sketch helps us work around them.",
   },
 ];
 
 export function HowToMeasure() {
   return (
-    <section className="py-24 px-6 bg-secondary">
+    <section className="py-24 px-6 bg-warm-gray">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
-          How to measure your space
+          Before you start — what to measure
         </h2>
         <p className="mt-3 text-center text-muted-foreground max-w-2xl mx-auto font-light">
-          Follow these steps so we can design your cabinetry with precision.
+          You don't need to be precise to the millimeter. But the more accurate your measurements, the better your project will turn out.
         </p>
 
-        <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {steps.map((step, i) => (
-            <div key={i} className="border border-border rounded-lg p-5 bg-background">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                  <step.icon className="w-5 h-5 text-accent" />
-                </div>
-                <span className="text-xs font-medium text-muted-foreground tracking-widest uppercase">
-                  Step {i + 1}
-                </span>
-              </div>
-              <h3 className="font-medium text-foreground">{step.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed font-light">{step.description}</p>
+        <div className="mt-14 grid md:grid-cols-2 gap-5">
+          {tips.map((tip, i) => (
+            <div key={i} className="bg-background rounded-lg p-6">
+              <h3 className="font-medium text-foreground tracking-wide">{tip.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light">
+                {tip.text}
+              </p>
             </div>
           ))}
+
+          {/* CTA tip — styled differently */}
+          <div className="md:col-span-2 bg-background rounded-lg p-6">
+            <h3 className="text-lg font-medium text-accent tracking-wide">When in doubt, scan</h3>
+            <p className="mt-2 text-muted-foreground leading-relaxed font-light">
+              Not sure about any of this? You can scan your space in 3D directly from your dashboard — no measuring tape needed.
+            </p>
+          </div>
         </div>
 
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
-          <div className="flex-1 flex items-start gap-3 border border-border rounded-lg p-5 bg-background">
-            <Lightbulb className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-muted-foreground leading-relaxed font-light">
-              <span className="font-medium text-foreground">Tip:</span> A simple sketch with dimensions is enough — it doesn't need to be perfect.
-            </p>
-          </div>
-          <div className="flex-1 flex items-start gap-3 border border-border rounded-lg p-5 bg-background">
-            <Scan className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-muted-foreground leading-relaxed font-light">
-              Not sure? You can <span className="font-medium text-foreground">scan your space in 3D</span> directly from your dashboard.
-            </p>
-          </div>
-        </div>
+        <p className="mt-8 text-sm text-foreground font-light italic text-center">
+          Don't worry about being perfectly precise — your cabinetmaker will conduct a final on-site measurement before fabrication.
+        </p>
       </div>
     </section>
   );
