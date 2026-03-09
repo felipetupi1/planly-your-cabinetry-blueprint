@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Plus, Minus, CuboidIcon } from "lucide-react";
+import { Minus, Plus, CuboidIcon, Calculator } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 type Size = "small" | "medium" | "large";
 
@@ -11,14 +12,14 @@ interface SpaceConfig {
 }
 
 const SPACES: SpaceConfig[] = [
-  { name: "Kitchen", hint: "Typical: 100–200 sq/ft", prices: { small: 350, medium: 550, large: 850 } },
-  { name: "Living / Family Room", hint: "Typical: 200–400 sq/ft", prices: { small: 300, medium: 500, large: 750 } },
-  { name: "Closet", hint: "Walk-in: 25–100 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
-  { name: "Pantry", hint: "Typical: 20–60 sq/ft", prices: { small: 200, medium: 350, large: null } },
-  { name: "Vanity / Bathroom", hint: "Typical: 35–100 sq/ft", prices: { small: 200, medium: 350, large: 500 } },
-  { name: "Home Office", hint: "Typical: 50–150 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
-  { name: "Bedroom", hint: "Typical: 120–200 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
-  { name: "Mudroom", hint: "Typical: 30–70 sq/ft", prices: { small: 200, medium: 300, large: 450 } },
+  { name: "Kitchen", hint: "Most kitchens are 100–200 sq/ft", prices: { small: 350, medium: 550, large: 850 } },
+  { name: "Living / Family Room", hint: "Most living rooms are 150–250 sq/ft", prices: { small: 300, medium: 500, large: 750 } },
+  { name: "Closet", hint: "Most closets are 25–100 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
+  { name: "Pantry", hint: "Most pantries are under 80 sq/ft", prices: { small: 200, medium: 350, large: null } },
+  { name: "Vanity / Bathroom", hint: "Most bathrooms are 40–100 sq/ft", prices: { small: 200, medium: 350, large: 500 } },
+  { name: "Home Office", hint: "Most home offices are 80–150 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
+  { name: "Bedroom", hint: "Most bedrooms are 100–200 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
+  { name: "Mudroom", hint: "Most mudrooms are 40–100 sq/ft", prices: { small: 200, medium: 300, large: 450 } },
 ];
 
 const SIZE_LABELS: Record<Size, string> = {
@@ -39,6 +40,12 @@ function getDiscount(count: number): number {
   if (count >= 3) return 0.15;
   if (count >= 2) return 0.1;
   return 0;
+}
+
+function sqftToSize(sqft: number): Size {
+  if (sqft >= 160) return "large";
+  if (sqft >= 80) return "medium";
+  return "small";
 }
 
 export function SpaceSelector() {
@@ -163,6 +170,21 @@ function SpaceCard({
   selectedCount: number;
 }) {
   const [selectedSize, setSelectedSize] = useState<Size>("medium");
+  const [showCalc, setShowCalc] = useState(false);
+  const [length, setLength] = useState("");
+  const [width, setWidth] = useState("");
+  const [ceilingHeight, setCeilingHeight] = useState("");
+
+  const calculatedSqft = length && width ? parseFloat(length) * parseFloat(width) : null;
+
+  const handleCalcApply = () => {
+    if (calculatedSqft !== null && calculatedSqft > 0) {
+      const size = sqftToSize(calculatedSqft);
+      if (space.prices[size] !== null) {
+        setSelectedSize(size);
+      }
+    }
+  };
 
   const currentPrice = space.prices[selectedSize];
 
@@ -197,10 +219,69 @@ function SpaceCard({
         })}
       </div>
 
+      {/* Help me calculate toggle */}
+      <button
+        onClick={() => setShowCalc(!showCalc)}
+        className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+      >
+        <Calculator className="w-3.5 h-3.5" />
+        {showCalc ? "Hide calculator" : "Help me calculate"}
+      </button>
+
+      {showCalc && (
+        <div className="mt-2 p-3 bg-secondary rounded-lg space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-[11px] text-muted-foreground">Length (ft)</label>
+              <Input
+                type="number"
+                value={length}
+                onChange={(e) => setLength(e.target.value)}
+                className="h-8 text-sm"
+                min="0"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] text-muted-foreground">Width (ft)</label>
+              <Input
+                type="number"
+                value={width}
+                onChange={(e) => setWidth(e.target.value)}
+                className="h-8 text-sm"
+                min="0"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-[11px] text-muted-foreground">Ceiling height (ft)</label>
+            <Input
+              type="number"
+              value={ceilingHeight}
+              onChange={(e) => setCeilingHeight(e.target.value)}
+              className="h-8 text-sm"
+              min="0"
+              placeholder="Optional"
+            />
+          </div>
+          {calculatedSqft !== null && calculatedSqft > 0 && (
+            <div className="text-xs text-foreground font-medium pt-1">
+              {calculatedSqft.toFixed(0)} sq/ft → {SIZE_LABELS[sqftToSize(calculatedSqft)]}
+            </div>
+          )}
+          <button
+            onClick={handleCalcApply}
+            disabled={!calculatedSqft || calculatedSqft <= 0}
+            className="w-full text-xs font-medium text-primary hover:text-primary/80 disabled:opacity-40 disabled:cursor-not-allowed pt-1"
+          >
+            Apply size
+          </button>
+        </div>
+      )}
+
       <button
         onClick={() => currentPrice !== null && onAdd(space, selectedSize)}
         disabled={currentPrice === null}
-        className="mt-4 w-full flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-navy-light transition-colors disabled:opacity-40"
+        className="mt-4 w-full flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors disabled:opacity-40"
       >
         <Plus className="w-4 h-4" />
         Add space

@@ -9,7 +9,7 @@ export function HeroSection() {
     <section className="min-h-[85vh] flex items-center justify-center px-6">
       <div className="max-w-3xl mx-auto text-center">
         <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-tight">
-          Your space, planned.
+          Your space, measured.
           <br />
           <span className="text-primary">Ready to build.</span>
         </h1>

@@ -2,6 +2,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { SpaceSelector } from "@/components/landing/SpaceSelector";
+import { HowToMeasure } from "@/components/landing/HowToMeasure";
 import { WhatsIncluded } from "@/components/landing/WhatsIncluded";
 import { Portfolio } from "@/components/landing/Portfolio";
 import { FAQ } from "@/components/landing/FAQ";
@@ -15,6 +16,7 @@ const Index = () => {
         <HeroSection />
         <HowItWorks />
         <SpaceSelector />
+        <HowToMeasure />
         <WhatsIncluded />
         <Portfolio />
         <FAQ />

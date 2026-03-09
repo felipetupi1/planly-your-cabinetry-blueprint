@@ -8,19 +8,27 @@ import {
 const faqs = [
   {
     q: "What if I don't have a floor plan?",
-    a: "No problem. Photos and rough dimensions are enough for us to get started. We'll create the floor plan for you.",
+    a: "Photos and measurements are enough. We'll take it from there.",
   },
   {
-    q: "What size is my space?",
-    a: "Measure the length and width of your room in feet and multiply them. For example, a 10 × 12 ft room is 120 sq/ft — that's a Medium.",
+    q: "How do I know what size my space is?",
+    a: "Use our built-in calculator — just enter length and width and we'll figure it out.",
+  },
+  {
+    q: "Do I need to measure ceiling height?",
+    a: "Yes — especially if you want cabinetry that reaches the ceiling. Our measurement guide walks you through it.",
+  },
+  {
+    q: "Should I measure door and window trim?",
+    a: "Yes. Trim, casings, and baseboards affect how cabinetry fits. Our guide shows you exactly what to measure.",
   },
   {
     q: "Can I use the project with any cabinetmaker?",
-    a: "Yes — that's the whole point. Your construction documents are standard and can be bid by any qualified cabinetmaker.",
+    a: "Yes — that's the whole point. Take your documents to any cabinetmaker and get accurate, comparable quotes.",
   },
   {
     q: "What happens after 2 revision rounds?",
-    a: "After 2 rounds of revisions — or once you approve — the project is considered delivered. Additional revisions can be arranged separately.",
+    a: "The project is considered approved and final files are released for download.",
   },
 ];
 

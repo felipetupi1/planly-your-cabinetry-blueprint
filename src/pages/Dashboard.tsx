@@ -62,7 +62,7 @@ function DashboardSidebar({
       <SidebarContent className="pt-4">
         <div className="px-4 pb-4">
           {!collapsed && (
-            <span className="font-heading text-lg font-bold text-foreground">Planly</span>
+            <span className="font-heading text-lg font-bold text-foreground">Measured</span>
           )}
         </div>
         <SidebarGroup>
