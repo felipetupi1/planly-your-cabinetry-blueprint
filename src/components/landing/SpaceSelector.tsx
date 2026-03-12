@@ -53,6 +53,9 @@ function sqftToSize(sqft: number): Size {
 export function SpaceSelector() {
   const [selectedSpaces, setSelectedSpaces] = useState<SelectedSpace[]>([]);
   const [showCustom, setShowCustom] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
 
   const addSpace = (space: SpaceConfig, size: Size) => {
     const price = space.prices[size];
