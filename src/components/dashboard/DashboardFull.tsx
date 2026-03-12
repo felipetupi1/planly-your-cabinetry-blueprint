@@ -687,7 +687,7 @@ function SectionBrief({ project, spaces }: { project: ProjectData; spaces: Space
       if (!sd) continue;
       await supabase.from("spaces").update({
         description: sd.description,
-        room_data: { room: sd.room, walls: sd.walls, appliances: sd.appliances },
+        room_data: { room: sd.room, walls: sd.walls, appliances: sd.appliances } as any,
         scan_status: sd.scanStatus || "idle",
         scan_link: sd.scanLink || null,
       }).eq("id", s.id);
