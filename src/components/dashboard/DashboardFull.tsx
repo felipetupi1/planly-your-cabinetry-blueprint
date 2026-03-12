@@ -499,7 +499,7 @@ function ApplianceCard({appliance,data,onChange}: {appliance: {id: string; label
   );
 }
 
-function SpaceBrief({spaceKey,data,onChange}: {spaceKey: string; data: SpaceDataItem; onChange: (d: SpaceDataItem) => void}){
+function SpaceBrief({spaceKey,data,onChange,projectId}: {spaceKey: string; data: SpaceDataItem; onChange: (d: SpaceDataItem) => void; projectId: string}){
   const rt=ROOM_TYPES[spaceKey];
   const [room,setRoom]=useState(data.room||{widthIn:180,depthIn:144,ceilIn:108});
   const [walls,setWalls]=useState<WallsMap>(data.walls||{A:[],B:[],C:[],D:[]});
