@@ -717,21 +717,21 @@ function SectionBrief({ project, spaces }: { project: ProjectData; spaces: Space
         </button>
       </div>
       <div style={{display:"flex",borderBottom:`1px solid ${C.border}`,marginBottom:22}}>
-        {spaces.map(space=>{
+        {purchasedSpaces.map(space=>{
           const isActive=activeTab===space.key;
           const isDone=isComplete(space.key);
           return(
             <button key={space.key} onClick={()=>setActiveTab(space.key)} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 20px",border:"none",background:"transparent",cursor:"pointer",fontSize:12,fontWeight:isActive?600:400,color:isActive?C.navy:C.muted,borderBottom:isActive?`2px solid ${C.accent}`:"2px solid transparent",marginBottom:-1}}>
-              <span style={{fontSize:15}}>{ROOM_TYPES[space.key].icon}</span>
+              <span style={{fontSize:15}}>{ROOM_TYPES[space.key]?.icon}</span>
               {space.label}
               {isDone&&<span style={{fontSize:10,color:C.success,marginLeft:2}}>✓</span>}
             </button>
           );
         })}
       </div>
-      {spaces.map(space=>(
+      {purchasedSpaces.map(space=>(
         <div key={space.key} style={{display:activeTab===space.key?"block":"none"}}>
-          <SpaceBrief spaceKey={space.key} data={spaceData[space.key]} onChange={(d: SpaceDataItem)=>setSpaceData(p=>({...p,[space.key]:d}))}/>
+          <SpaceBrief projectId={project.id} spaceKey={space.key} data={spaceData[space.key]} onChange={(d: SpaceDataItem)=>setSpaceData(p=>({...p,[space.key]:d}))}/>
         </div>
       ))}
       <div style={{display:"flex",gap:12,marginTop:24,paddingTop:18,borderTop:`1px solid ${C.border}`,alignItems:"center"}}>
