@@ -339,8 +339,8 @@ function ScanLinkModal({ link, spaceLabel, onClose }: { link: string; spaceLabel
 
 // ─── Status Bar ────────────────────────────────────────────────────────────
 
-function StatusBar() {
-  const ci = STAGES.indexOf(CURRENT_STAGE);
+function StatusBar({ currentStage }: { currentStage: string }) {
+  const ci = STAGES.indexOf(currentStage);
   return (
     <div style={{borderBottom:`1px solid ${C.border}`,background:C.bg,padding:"18px 36px"}}>
       <div style={{maxWidth:900}}>
