@@ -70,8 +70,8 @@ export function HeroSection() {
             {ROTATING_WORDS[wordIndex]}
           </span>
           ,<br />
-          measured.{" "}
-          <span className="font-medium">Ready to build.</span>
+          your terms.{" "}
+          <span className="font-medium">You choose who builds it.</span>
         </h1>
 
         {/* Divider */}
@@ -83,9 +83,10 @@ export function HeroSection() {
 
         {/* Subheading */}
         <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed font-light tracking-wide">
-          Get a professional cabinetry project online — so you can get accurate
-          quotes and negotiate with any cabinetmaker.{" "}
-          <span className="text-foreground font-normal">No surprises.</span>
+          Most people call a cabinetmaker and hope for the best. With Measured,
+          you arrive with the project in hand — ready to compare quotes, ask the
+          right questions, and{" "}
+          <span className="text-foreground font-normal">decide on your terms.</span>
         </p>
 
         {/* CTAs */}
@@ -98,10 +99,10 @@ export function HeroSection() {
             Start your project
           </Button>
           <button
-            onClick={() => scrollTo("portfolio")}
+            onClick={() => scrollTo("how-it-works")}
             className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors tracking-widest uppercase"
           >
-            See our work
+            See how it works
             <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
               →
             </span>
@@ -110,7 +111,12 @@ export function HeroSection() {
 
         {/* Trust badges */}
         <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-xs text-muted-foreground tracking-widest uppercase">
-          {["7-day delivery", "2 revision rounds", "PDF + DWG files", "Any cabinetmaker"].map((item) => (
+          {[
+            "First draft in 7 business days",
+            "2 revision rounds",
+            "Final delivery in 5 days after approval",
+            "You own the project",
+          ].map((item) => (
             <span key={item} className="flex items-center gap-2">
               <span className="w-1 h-1 rounded-full bg-accent inline-block" />
               {item}
