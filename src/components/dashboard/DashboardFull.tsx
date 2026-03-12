@@ -1,4 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const C = {
   navy: "#1e3a5f", accent: "#c1440e", bg: "#ffffff",
@@ -6,13 +8,31 @@ const C = {
   text: "#1e3a5f", success: "#1a7a5e", planBg: "#f8f5f2",
 };
 
-const PROJECT = {
-  id: "MEAS-2026-001", date: "March 9, 2026",
-  purchasedSpaces: [
-    { key: "kitchen", label: "Kitchen", size: "Medium", price: 550, render3d: true  },
-    { key: "closet",  label: "Closet",  size: "Small",  price: 200, render3d: false },
-  ],
-};
+interface ProjectData {
+  id: string;
+  client_name: string;
+  client_email: string;
+  stage: string;
+  created_at: string | null;
+  access_token: string;
+  notes: string | null;
+  deadline: string | null;
+}
+
+interface SpaceData {
+  id: string;
+  space_key: string;
+  space_label: string;
+  size: string | null;
+  price: number | null;
+  render_3d: boolean | null;
+  description: string | null;
+  room_data: any;
+  scan_status: string | null;
+  scan_link: string | null;
+  floor_plan_url: string | null;
+  project_id: string | null;
+}
 
 const ROOM_TYPES: Record<string, { label: string; icon: string; hasSink: boolean; hasAppliances: boolean; hasWasherDryer: boolean }> = {
   kitchen:  { label:"Kitchen",  icon:"🍳", hasSink:true,  hasAppliances:true,  hasWasherDryer:true  },
@@ -42,7 +62,6 @@ const ELEMENT_TYPES: Record<string, { label: string; icon: string; color: string
 };
 
 const STAGES = ["Payment","Brief","In Progress","1st Draft","Revision 1","Revision 2","Final Production","Delivered"];
-const CURRENT_STAGE = "Brief";
 
 interface RoomElement {
   id: string;
@@ -320,8 +339,8 @@ function ScanLinkModal({ link, spaceLabel, onClose }: { link: string; spaceLabel
 
 // ─── Status Bar ────────────────────────────────────────────────────────────
 
-function StatusBar() {
-  const ci = STAGES.indexOf(CURRENT_STAGE);
+function StatusBar({ currentStage }: { currentStage: string }) {
+  const ci = STAGES.indexOf(currentStage);
   return (
     <div style={{borderBottom:`1px solid ${C.border}`,background:C.bg,padding:"18px 36px"}}>
       <div style={{maxWidth:900}}>
@@ -480,7 +499,7 @@ function ApplianceCard({appliance,data,onChange}: {appliance: {id: string; label
   );
 }
 
-function SpaceBrief({spaceKey,data,onChange}: {spaceKey: string; data: SpaceDataItem; onChange: (d: SpaceDataItem) => void}){
+function SpaceBrief({spaceKey,data,onChange,projectId}: {spaceKey: string; data: SpaceDataItem; onChange: (d: SpaceDataItem) => void; projectId: string}){
   const rt=ROOM_TYPES[spaceKey];
   const [room,setRoom]=useState(data.room||{widthIn:180,depthIn:144,ceilIn:108});
   const [walls,setWalls]=useState<WallsMap>(data.walls||{A:[],B:[],C:[],D:[]});
@@ -518,7 +537,7 @@ function SpaceBrief({spaceKey,data,onChange}: {spaceKey: string; data: SpaceData
       {/* ── CubiCasa Scan Card ── */}
       <ScanCard
         spaceLabel={rt.label}
-        projectId={PROJECT.id}
+        projectId={projectId}
         spaceKey={spaceKey}
         scanStatus={data.scanStatus || "idle"}
         scanLink={data.scanLink}
@@ -641,18 +660,40 @@ function SpaceBrief({spaceKey,data,onChange}: {spaceKey: string; data: SpaceData
   );
 }
 
-function SectionBrief(){
-  const spaces=PROJECT.purchasedSpaces;
-  const [activeTab,setActiveTab]=useState(spaces[0].key);
+function SectionBrief({ project, spaces }: { project: ProjectData; spaces: SpaceData[] }){
+  const purchasedSpaces = spaces.map(s => ({ key: s.space_key, label: s.space_label, size: s.size || "M", price: s.price || 0, render3d: s.render_3d || false }));
+  const [activeTab,setActiveTab]=useState(purchasedSpaces[0]?.key || "");
   const [spaceData,setSpaceData]=useState<Record<string, SpaceDataItem>>(
-    Object.fromEntries(spaces.map(s=>[s.key,{room:{widthIn:180,depthIn:144,ceilIn:108},walls:{A:[],B:[],C:[],D:[]},files:[],description:"",appliances:{},scanStatus:"idle"}]))
+    Object.fromEntries(spaces.map(s=>[s.space_key,{
+      room: s.room_data?.room || {widthIn:180,depthIn:144,ceilIn:108},
+      walls: s.room_data?.walls || {A:[],B:[],C:[],D:[]},
+      files: [],
+      description: s.description || "",
+      appliances: s.room_data?.appliances || {},
+      scanStatus: (s.scan_status as ScanStatus) || "idle",
+      scanLink: s.scan_link || undefined,
+      floorPlanUrl: s.floor_plan_url || undefined,
+    }]))
   );
   const [saved,setSaved]=useState(false);
   const [submitted,setSubmitted]=useState(false);
 
-  const isComplete=(key: string)=>spaceData[key].description?.trim().length>0;
-  const allComplete=spaces.every(s=>isComplete(s.key));
-  const handleSave=()=>{setSaved(true);setTimeout(()=>setSaved(false),2500);};
+  const isComplete=(key: string)=>spaceData[key]?.description?.trim().length>0;
+  const allComplete=purchasedSpaces.every(s=>isComplete(s.key));
+  const handleSave=async()=>{
+    // Save each space's data to Supabase
+    for (const s of spaces) {
+      const sd = spaceData[s.space_key];
+      if (!sd) continue;
+      await supabase.from("spaces").update({
+        description: sd.description,
+        room_data: { room: sd.room, walls: sd.walls, appliances: sd.appliances } as any,
+        scan_status: sd.scanStatus || "idle",
+        scan_link: sd.scanLink || null,
+      }).eq("id", s.id);
+    }
+    setSaved(true);setTimeout(()=>setSaved(false),2500);
+  };
 
   if(submitted){
     return(
@@ -676,21 +717,21 @@ function SectionBrief(){
         </button>
       </div>
       <div style={{display:"flex",borderBottom:`1px solid ${C.border}`,marginBottom:22}}>
-        {spaces.map(space=>{
+        {purchasedSpaces.map(space=>{
           const isActive=activeTab===space.key;
           const isDone=isComplete(space.key);
           return(
             <button key={space.key} onClick={()=>setActiveTab(space.key)} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 20px",border:"none",background:"transparent",cursor:"pointer",fontSize:12,fontWeight:isActive?600:400,color:isActive?C.navy:C.muted,borderBottom:isActive?`2px solid ${C.accent}`:"2px solid transparent",marginBottom:-1}}>
-              <span style={{fontSize:15}}>{ROOM_TYPES[space.key].icon}</span>
+              <span style={{fontSize:15}}>{ROOM_TYPES[space.key]?.icon}</span>
               {space.label}
               {isDone&&<span style={{fontSize:10,color:C.success,marginLeft:2}}>✓</span>}
             </button>
           );
         })}
       </div>
-      {spaces.map(space=>(
+      {purchasedSpaces.map(space=>(
         <div key={space.key} style={{display:activeTab===space.key?"block":"none"}}>
-          <SpaceBrief spaceKey={space.key} data={spaceData[space.key]} onChange={(d: SpaceDataItem)=>setSpaceData(p=>({...p,[space.key]:d}))}/>
+          <SpaceBrief projectId={project.id} spaceKey={space.key} data={spaceData[space.key]} onChange={(d: SpaceDataItem)=>setSpaceData(p=>({...p,[space.key]:d}))}/>
         </div>
       ))}
       <div style={{display:"flex",gap:12,marginTop:24,paddingTop:18,borderTop:`1px solid ${C.border}`,alignItems:"center"}}>
@@ -706,16 +747,17 @@ function SectionBrief(){
   );
 }
 
-function SectionProject(){
-  const sub=PROJECT.purchasedSpaces.reduce((s,x)=>s+x.price+(x.render3d?150:0),0);
-  const disc=sub*0.1;
+function SectionProject({ project, spaces }: { project: ProjectData; spaces: SpaceData[] }){
+  const sub=spaces.reduce((s,x)=>s+(x.price||0)+(x.render_3d?150:0),0);
+  const disc=spaces.length>1?sub*0.1:0;
+  const dateStr = project.created_at ? new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
   return(
     <div>
       <h2 style={{fontSize:20,fontWeight:300,color:C.text,letterSpacing:2,textTransform:"uppercase",margin:0}}>My Project</h2>
       <p style={{marginTop:7,color:C.muted,fontWeight:300,fontSize:13}}>Summary of what was purchased.</p>
       <div style={{marginTop:7,display:"flex",gap:24,fontSize:12,color:C.muted}}>
-        <span>Project ID: <strong style={{color:C.text}}>{PROJECT.id}</strong></span>
-        <span>Date: <strong style={{color:C.text}}>{PROJECT.date}</strong></span>
+        <span>Project ID: <strong style={{color:C.text}}>{project.id.slice(0,8).toUpperCase()}</strong></span>
+        <span>Date: <strong style={{color:C.text}}>{dateStr}</strong></span>
       </div>
       <div style={{marginTop:18,border:`1px solid ${C.border}`,borderRadius:6,overflow:"hidden"}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
@@ -723,19 +765,19 @@ function SectionProject(){
             {["Space","Size","3D Render","Price"].map(h=><th key={h} style={{padding:"11px 16px",textAlign:"left" as const,fontWeight:500,color:C.text,fontSize:10,textTransform:"uppercase" as const,letterSpacing:1}}>{h}</th>)}
           </tr></thead>
           <tbody>
-            {PROJECT.purchasedSpaces.map((s,i)=>(
+            {spaces.map((s,i)=>(
               <tr key={i} style={{borderTop:`1px solid ${C.border}`}}>
-                <td style={{padding:"11px 16px",color:C.text}}>{ROOM_TYPES[s.key].icon} {s.label}</td>
+                <td style={{padding:"11px 16px",color:C.text}}>{ROOM_TYPES[s.space_key]?.icon} {s.space_label}</td>
                 <td style={{padding:"11px 16px",color:C.muted,fontWeight:300}}>{s.size}</td>
-                <td style={{padding:"11px 16px",color:C.muted,fontWeight:300}}>{s.render3d?"Yes (+$150)":"No"}</td>
-                <td style={{padding:"11px 16px",color:C.text,fontWeight:500}}>${s.price+(s.render3d?150:0)}</td>
+                <td style={{padding:"11px 16px",color:C.muted,fontWeight:300}}>{s.render_3d?"Yes (+$150)":"No"}</td>
+                <td style={{padding:"11px 16px",color:C.text,fontWeight:500}}>${(s.price||0)+(s.render_3d?150:0)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <div style={{padding:"11px 16px",borderTop:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between"}}>
-          <span style={{fontSize:12,color:C.success,fontWeight:500}}>Multi-space discount (10%) — −${disc}</span>
-          <span style={{fontSize:16,fontWeight:500,color:C.text}}>Total: ${sub-disc}</span>
+          {disc>0&&<span style={{fontSize:12,color:C.success,fontWeight:500}}>Multi-space discount (10%) — −${disc}</span>}
+          <span style={{fontSize:16,fontWeight:500,color:C.text,marginLeft:"auto"}}>Total: ${sub-disc}</span>
         </div>
       </div>
     </div>
@@ -776,11 +818,35 @@ function SectionMessages(){
 const NAV=[{id:"project",label:"My Project"},{id:"brief",label:"Brief"},{id:"review",label:"Review"},{id:"delivery",label:"Delivery"},{id:"messages",label:"Messages"}];
 
 export default function Dashboard(){
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const [active,setActive]=useState("brief");
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [spaces, setSpaces] = useState<SpaceData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) { setError("No access token provided."); setLoading(false); return; }
+    (async () => {
+      const { data: proj, error: projErr } = await supabase
+        .from("projects").select("*").eq("access_token", token).single();
+      if (projErr || !proj) { setError("Project not found."); setLoading(false); return; }
+      setProject(proj);
+      const { data: sp } = await supabase
+        .from("spaces").select("*").eq("project_id", proj.id);
+      setSpaces(sp || []);
+      setLoading(false);
+    })();
+  }, [token]);
+
+  if (loading) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontFamily:"'Outfit', system-ui, sans-serif",color:C.muted}}>Loading...</div>;
+  if (error || !project) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontFamily:"'Outfit', system-ui, sans-serif",color:C.accent}}>{error || "Project not found."}</div>;
+
   const content=()=>{
     switch(active){
-      case "project":  return <SectionProject/>;
-      case "brief":    return <SectionBrief/>;
+      case "project":  return <SectionProject project={project} spaces={spaces}/>;
+      case "brief":    return spaces.length > 0 ? <SectionBrief project={project} spaces={spaces}/> : <p style={{color:C.muted}}>No spaces found.</p>;
       case "review":   return <SectionReview/>;
       case "delivery": return <SectionDelivery/>;
       case "messages": return <SectionMessages/>;
@@ -799,11 +865,11 @@ export default function Dashboard(){
         </nav>
         <div style={{padding:"14px 20px",borderTop:"1px solid rgba(255,255,255,0.1)"}}>
           <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:1,textTransform:"uppercase",margin:0}}>Project ID</p>
-          <p style={{fontSize:11,color:"rgba(255,255,255,0.6)",margin:"3px 0 0",fontWeight:300}}>{PROJECT.id}</p>
+          <p style={{fontSize:11,color:"rgba(255,255,255,0.6)",margin:"3px 0 0",fontWeight:300}}>{project.id.slice(0,8).toUpperCase()}</p>
         </div>
       </aside>
       <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
-        <StatusBar/>
+        <StatusBar currentStage={project.stage}/>
         <main style={{flex:1,padding:"26px 34px",overflowY:"auto"}}>
           <div style={{maxWidth:980}}>{content()}</div>
         </main>
