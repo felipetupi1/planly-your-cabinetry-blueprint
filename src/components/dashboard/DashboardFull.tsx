@@ -70,6 +70,9 @@ interface SpaceDataItem {
   files: File[];
   description: string;
   appliances: Record<string, any>;
+  scanStatus?: "idle" | "pending" | "received";
+  scanLink?: string;
+  floorPlanUrl?: string;
 }
 
 interface MessageItem {
@@ -77,6 +80,245 @@ interface MessageItem {
   text: string;
   time: string;
 }
+
+// ─── CubiCasa GoToScan Card ────────────────────────────────────────────────
+
+type ScanStatus = "idle" | "pending" | "received";
+
+interface ScanCardProps {
+  spaceLabel: string;
+  projectId: string;
+  spaceKey: string;
+  scanStatus: ScanStatus;
+  scanLink?: string;
+  floorPlanUrl?: string;
+  onScanRequested: (link: string) => void;
+}
+
+function ScanCard({ spaceLabel, projectId, spaceKey, scanStatus, scanLink, floorPlanUrl, onScanRequested }: ScanCardProps) {
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  // In production: call a Supabase Edge Function that holds the CubiCasa API key
+  // and creates a GoToScan order via POST /api/integrate/v3/gotoscan
+  // The edge function returns the GoToScan dynamic link.
+  // Here we simulate that flow for prototype purposes.
+  const handleGenerateLink = async () => {
+    setLoading(true);
+    // Simulated delay (replace with real Supabase Edge Function call)
+    await new Promise(r => setTimeout(r, 1400));
+    const externalId = `${projectId}-${spaceKey}-${Date.now()}`;
+    // Real link format (edge function would return this):
+    // https://api.cubi.casa/conversion/gotoscan?token=TOKEN&external_id=EXT_ID&webhook_url=WEBHOOK
+    const mockLink = `https://gotoscan.cubi.casa/start?external_id=${externalId}`;
+    setLoading(false);
+    onScanRequested(mockLink);
+    setShowModal(true);
+  };
+
+  if (scanStatus === "received") {
+    return (
+      <div style={{
+        border: `1px solid #a7d4b8`,
+        borderRadius: 10,
+        padding: "14px 18px",
+        background: "#f0faf4",
+        marginBottom: 24,
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+      }}>
+        <span style={{ fontSize: 22 }}>✅</span>
+        <div style={{ flex: 1 }}>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: C.success }}>Floor plan received</p>
+          <p style={{ margin: "2px 0 0", fontSize: 11, color: C.muted, fontWeight: 300 }}>
+            Your {spaceLabel.toLowerCase()} scan has been processed. Dimensions below are pre-filled.
+          </p>
+        </div>
+        {floorPlanUrl && (
+          <a href={floorPlanUrl} target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: 11, color: C.accent, textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
+            View floor plan →
+          </a>
+        )}
+      </div>
+    );
+  }
+
+  if (scanStatus === "pending") {
+    return (
+      <div style={{
+        border: `1px solid #d4b87a`,
+        borderRadius: 10,
+        padding: "14px 18px",
+        background: "#fffbf0",
+        marginBottom: 24,
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+      }}>
+        <span style={{ fontSize: 22 }}>⏳</span>
+        <div style={{ flex: 1 }}>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "#8a6a00" }}>Scan in progress</p>
+          <p style={{ margin: "2px 0 0", fontSize: 11, color: C.muted, fontWeight: 300 }}>
+            Waiting for scan upload. Floor plan is usually ready within 24 hours.
+          </p>
+        </div>
+        {scanLink && (
+          <button
+            onClick={() => setShowModal(true)}
+            style={{ fontSize: 11, color: C.navy, background: "none", border: `1px solid ${C.border}`, borderRadius: 5, padding: "5px 12px", cursor: "pointer", whiteSpace: "nowrap" }}>
+            View link
+          </button>
+        )}
+        {showModal && scanLink && (
+          <ScanLinkModal link={scanLink} spaceLabel={spaceLabel} onClose={() => setShowModal(false)} />
+        )}
+      </div>
+    );
+  }
+
+  // idle state
+  return (
+    <>
+      <div style={{
+        border: `1px dashed ${C.border}`,
+        borderRadius: 10,
+        padding: "14px 18px",
+        background: C.planBg,
+        marginBottom: 24,
+        display: "flex",
+        alignItems: "center",
+        gap: 16,
+      }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: 10,
+          background: C.navy, display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 20 }}>📱</span>
+        </div>
+        <div style={{ flex: 1 }}>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: C.navy }}>
+            No tape measure? Scan your {spaceLabel.toLowerCase()}.
+          </p>
+          <p style={{ margin: "3px 0 0", fontSize: 11, color: C.muted, fontWeight: 300 }}>
+            We'll send you a link — scan with your phone in ~5 min. Floor plan generated automatically.
+          </p>
+        </div>
+        <button
+          onClick={handleGenerateLink}
+          disabled={loading}
+          style={{
+            background: C.navy,
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            padding: "8px 16px",
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            cursor: loading ? "default" : "pointer",
+            opacity: loading ? 0.7 : 1,
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+          }}>
+          {loading ? "Generating…" : "Get scan link"}
+        </button>
+      </div>
+
+      {showModal && scanLink && (
+        <ScanLinkModal link={scanLink} spaceLabel={spaceLabel} onClose={() => setShowModal(false)} />
+      )}
+    </>
+  );
+}
+
+function ScanLinkModal({ link, spaceLabel, onClose }: { link: string; spaceLabel: string; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0,
+        background: "rgba(30,58,95,0.45)",
+        zIndex: 100,
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "#fff",
+          borderRadius: 14,
+          padding: "28px 30px",
+          maxWidth: 440,
+          width: "90%",
+          boxShadow: "0 24px 60px rgba(30,58,95,0.2)",
+        }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+          <div>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: C.navy }}>
+              📱 Scan your {spaceLabel.toLowerCase()}
+            </p>
+            <p style={{ margin: "4px 0 0", fontSize: 12, color: C.muted, fontWeight: 300 }}>
+              Powered by CubiCasa GoToScan
+            </p>
+          </div>
+          <button onClick={onClose} style={{ border: "none", background: "none", cursor: "pointer", color: C.muted, fontSize: 20 }}>×</button>
+        </div>
+
+        <ol style={{ paddingLeft: 18, margin: "0 0 20px", color: C.text }}>
+          {[
+            "Open this link on your phone.",
+            "Install the GoToScan app (free, iOS & Android).",
+            "Walk through the space slowly — takes about 5 minutes.",
+            "Upload when done. Floor plan arrives within 24h.",
+          ].map((step, i) => (
+            <li key={i} style={{ fontSize: 12, fontWeight: 300, marginBottom: 8, lineHeight: 1.6 }}>{step}</li>
+          ))}
+        </ol>
+
+        <div style={{
+          background: C.planBg,
+          border: `1px solid ${C.border}`,
+          borderRadius: 8,
+          padding: "10px 14px",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 11, color: C.muted, flex: 1, wordBreak: "break-all", fontFamily: "monospace" }}>{link}</span>
+          <button
+            onClick={handleCopy}
+            style={{
+              background: copied ? C.success : C.navy,
+              color: "#fff", border: "none", borderRadius: 5,
+              padding: "6px 14px", fontSize: 11, fontWeight: 600,
+              cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
+            }}>
+            {copied ? "Copied!" : "Copy"}
+          </button>
+        </div>
+
+        <p style={{ fontSize: 10, color: C.muted, fontWeight: 300, margin: 0, lineHeight: 1.6 }}>
+          The link is unique to this project. Once scanned, your floor plan will appear here automatically.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Status Bar ────────────────────────────────────────────────────────────
 
 function StatusBar() {
   const ci = STAGES.indexOf(CURRENT_STAGE);
@@ -272,6 +514,18 @@ function SpaceBrief({spaceKey,data,onChange}: {spaceKey: string; data: SpaceData
 
   return(
     <div onClick={closeAll}>
+
+      {/* ── CubiCasa Scan Card ── */}
+      <ScanCard
+        spaceLabel={rt.label}
+        projectId={PROJECT.id}
+        spaceKey={spaceKey}
+        scanStatus={data.scanStatus || "idle"}
+        scanLink={data.scanLink}
+        floorPlanUrl={data.floorPlanUrl}
+        onScanRequested={(link) => onChange({ ...data, scanStatus: "pending", scanLink: link })}
+      />
+
       <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
 
         {/* COL 1: dimensions, walls, legend */}
@@ -356,7 +610,7 @@ function SpaceBrief({spaceKey,data,onChange}: {spaceKey: string; data: SpaceData
                         <td style={{padding:"6px 10px",color:C.navy}}>{m.icon} {m.label}</td>
                         <td style={{padding:"6px 10px",color:C.muted}}>{el.width}"</td>
                         <td style={{padding:"6px 10px",color:el.type==="sink"?C.success:C.muted,fontWeight:el.type==="sink"?600:400}}>
-                          {el.type==="sink"?`ctr ${(el.distFromLeft+el.width/2).toFixed(1)}"`:el.height?`${el.height}"`:"—"}
+                          {el.type==="sink"?`ctr ${(el.distFromLeft+el.width/2).toFixed(1)}"`:el.height?`${el.height}"`:"-"}
                         </td>
                         <td style={{padding:"6px 10px",color:C.muted}}>{el.distFromLeft}"</td>
                       </tr>
@@ -391,7 +645,7 @@ function SectionBrief(){
   const spaces=PROJECT.purchasedSpaces;
   const [activeTab,setActiveTab]=useState(spaces[0].key);
   const [spaceData,setSpaceData]=useState<Record<string, SpaceDataItem>>(
-    Object.fromEntries(spaces.map(s=>[s.key,{room:{widthIn:180,depthIn:144,ceilIn:108},walls:{A:[],B:[],C:[],D:[]},files:[],description:"",appliances:{}}]))
+    Object.fromEntries(spaces.map(s=>[s.key,{room:{widthIn:180,depthIn:144,ceilIn:108},walls:{A:[],B:[],C:[],D:[]},files:[],description:"",appliances:{},scanStatus:"idle"}]))
   );
   const [saved,setSaved]=useState(false);
   const [submitted,setSubmitted]=useState(false);
