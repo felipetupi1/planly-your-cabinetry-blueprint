@@ -1,4 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const C = {
   navy: "#1e3a5f", accent: "#c1440e", bg: "#ffffff",
@@ -6,13 +8,31 @@ const C = {
   text: "#1e3a5f", success: "#1a7a5e", planBg: "#f8f5f2",
 };
 
-const PROJECT = {
-  id: "MEAS-2026-001", date: "March 9, 2026",
-  purchasedSpaces: [
-    { key: "kitchen", label: "Kitchen", size: "Medium", price: 550, render3d: true  },
-    { key: "closet",  label: "Closet",  size: "Small",  price: 200, render3d: false },
-  ],
-};
+interface ProjectData {
+  id: string;
+  client_name: string;
+  client_email: string;
+  stage: string;
+  created_at: string | null;
+  access_token: string;
+  notes: string | null;
+  deadline: string | null;
+}
+
+interface SpaceData {
+  id: string;
+  space_key: string;
+  space_label: string;
+  size: string | null;
+  price: number | null;
+  render_3d: boolean | null;
+  description: string | null;
+  room_data: any;
+  scan_status: string | null;
+  scan_link: string | null;
+  floor_plan_url: string | null;
+  project_id: string | null;
+}
 
 const ROOM_TYPES: Record<string, { label: string; icon: string; hasSink: boolean; hasAppliances: boolean; hasWasherDryer: boolean }> = {
   kitchen:  { label:"Kitchen",  icon:"🍳", hasSink:true,  hasAppliances:true,  hasWasherDryer:true  },
