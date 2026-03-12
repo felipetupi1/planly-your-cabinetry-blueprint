@@ -1,22 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Project {
   id: string;
-  client: string;
-  email: string;
-  spaces: string[];
-  status: string;
-  date: string;
-  amount: number;
-  hasBrief: boolean;
+  client_name: string;
+  client_email: string;
+  stage: string;
+  created_at: string | null;
+  access_token: string;
+  spaces: { space_label: string; size: string | null; price: number | null }[];
 }
-
-const mockProjects: Project[] = [
-  { id: "MEAS-001", client: "Maria Santos", email: "maria@email.com", spaces: ["Kitchen (M)", "Pantry (S)"], status: "Brief", date: "Mar 7, 2026", amount: 810, hasBrief: false },
-  { id: "MEAS-002", client: "John Smith", email: "john@email.com", spaces: ["Closet (L)", "Bedroom (M)"], status: "In Progress", date: "Mar 5, 2026", amount: 1080, hasBrief: true },
-  { id: "MEAS-003", client: "Ana Lima", email: "ana@email.com", spaces: ["Kitchen (L)"], status: "1st Draft", date: "Mar 1, 2026", amount: 850, hasBrief: true },
-];
 
 const statusColors: Record<string, string> = {
   Payment: "bg-secondary text-secondary-foreground",
@@ -31,9 +25,33 @@ const statusColors: Record<string, string> = {
 
 export function AdminProjects() {
   const [filter, setFilter] = useState("all");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data: projs } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+      if (!projs) { setLoading(false); return; }
+
+      const { data: allSpaces } = await supabase.from("spaces").select("*");
+      const spacesByProject = (allSpaces || []).reduce((acc: Record<string, any[]>, s) => {
+        if (s.project_id) {
+          acc[s.project_id] = acc[s.project_id] || [];
+          acc[s.project_id].push(s);
+        }
+        return acc;
+      }, {});
+
+      setProjects(projs.map(p => ({
+        ...p,
+        spaces: spacesByProject[p.id] || [],
+      })));
+      setLoading(false);
+    })();
+  }, []);
 
   const statuses = ["all", "Payment", "Brief", "In Progress", "1st Draft", "Revision 1", "Revision 2", "Final Production", "Delivered"];
-  const filtered = filter === "all" ? mockProjects : mockProjects.filter((p) => p.status === filter);
+  const filtered = filter === "all" ? projects : projects.filter((p) => p.stage === filter);
 
   return (
     <div>
@@ -55,48 +73,56 @@ export function AdminProjects() {
         ))}
       </div>
 
-      <div className="mt-6 border border-border rounded-lg overflow-hidden overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-secondary">
-              <th className="text-left p-4 font-medium text-foreground tracking-wide">Client</th>
-              <th className="text-left p-4 font-medium text-foreground tracking-wide">ID</th>
-              <th className="text-left p-4 font-medium text-foreground tracking-wide">Spaces</th>
-              <th className="text-left p-4 font-medium text-foreground tracking-wide">Status</th>
-              <th className="text-left p-4 font-medium text-foreground tracking-wide">Date</th>
-              <th className="text-right p-4 font-medium text-foreground tracking-wide">Paid</th>
-              <th className="text-right p-4 font-medium text-foreground tracking-wide">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((p) => (
-              <tr key={p.id} className="border-t border-border">
-                <td className="p-4">
-                  <div className="text-foreground font-medium">{p.client}</div>
-                  <div className="text-xs text-muted-foreground font-light">{p.email}</div>
-                </td>
-                <td className="p-4 text-muted-foreground font-light">{p.id}</td>
-                <td className="p-4 text-muted-foreground font-light">{p.spaces.join(", ")}</td>
-                <td className="p-4">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusColors[p.status] || ""}`}>
-                      {p.status}
-                    </span>
-                    {!p.hasBrief && p.status === "Brief" && (
-                      <span className="text-xs text-accent">⚑ Awaiting brief</span>
-                    )}
-                  </div>
-                </td>
-                <td className="p-4 text-muted-foreground font-light">{p.date}</td>
-                <td className="p-4 text-right text-foreground font-medium">${p.amount}</td>
-                <td className="p-4 text-right">
-                  <Button variant="outline" size="sm">Manage</Button>
-                </td>
+      {loading ? (
+        <div className="mt-6 text-muted-foreground text-sm">Loading projects...</div>
+      ) : (
+        <div className="mt-6 border border-border rounded-lg overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-secondary">
+                <th className="text-left p-4 font-medium text-foreground tracking-wide">Client</th>
+                <th className="text-left p-4 font-medium text-foreground tracking-wide">ID</th>
+                <th className="text-left p-4 font-medium text-foreground tracking-wide">Spaces</th>
+                <th className="text-left p-4 font-medium text-foreground tracking-wide">Status</th>
+                <th className="text-left p-4 font-medium text-foreground tracking-wide">Date</th>
+                <th className="text-right p-4 font-medium text-foreground tracking-wide">Total</th>
+                <th className="text-right p-4 font-medium text-foreground tracking-wide">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.length === 0 && (
+                <tr><td colSpan={7} className="p-4 text-center text-muted-foreground">No projects found.</td></tr>
+              )}
+              {filtered.map((p) => {
+                const total = p.spaces.reduce((s, sp) => s + (sp.price || 0), 0);
+                const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                return (
+                  <tr key={p.id} className="border-t border-border">
+                    <td className="p-4">
+                      <div className="text-foreground font-medium">{p.client_name}</div>
+                      <div className="text-xs text-muted-foreground font-light">{p.client_email}</div>
+                    </td>
+                    <td className="p-4 text-muted-foreground font-light">{p.id.slice(0, 8).toUpperCase()}</td>
+                    <td className="p-4 text-muted-foreground font-light">
+                      {p.spaces.map(s => `${s.space_label} (${s.size || '?'})`).join(", ") || "—"}
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-xs font-medium px-3 py-1 rounded-full ${statusColors[p.stage] || ""}`}>
+                        {p.stage}
+                      </span>
+                    </td>
+                    <td className="p-4 text-muted-foreground font-light">{dateStr}</td>
+                    <td className="p-4 text-right text-foreground font-medium">${total}</td>
+                    <td className="p-4 text-right">
+                      <Button variant="outline" size="sm">Manage</Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

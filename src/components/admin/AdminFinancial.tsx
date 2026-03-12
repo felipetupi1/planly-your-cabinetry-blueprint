@@ -1,41 +1,75 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, Download } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface RevenueEntry {
+  id: string;
+  client_name: string;
+  amount: number;
+  date: string;
+  spaces: string;
+}
 
 interface CostEntry {
   id: string;
-  label: string;
+  description: string;
   amount: number;
 }
 
-const mockRevenue = [
-  { id: "MEAS-001", client: "Maria Santos", amount: 810, date: "Mar 7, 2026", space: "Kitchen + Pantry" },
-  { id: "MEAS-002", client: "John Smith", amount: 1080, date: "Mar 5, 2026", space: "Closet + Bedroom" },
-  { id: "MEAS-003", client: "Ana Lima", amount: 850, date: "Mar 1, 2026", space: "Kitchen" },
-];
-
 export function AdminFinancial() {
-  const [costs, setCosts] = useState<CostEntry[]>([
-    { id: "1", label: "Freelance renderer", amount: 150 },
-    { id: "2", label: "Software licenses", amount: 45 },
-  ]);
+  const [costs, setCosts] = useState<CostEntry[]>([]);
+  const [revenue, setRevenue] = useState<RevenueEntry[]>([]);
   const [newLabel, setNewLabel] = useState("");
   const [newAmount, setNewAmount] = useState("");
   const [period, setPeriod] = useState<"month" | "quarter" | "all">("month");
+  const [loading, setLoading] = useState(true);
 
-  const totalRevenue = mockRevenue.reduce((sum, r) => sum + r.amount, 0);
+  useEffect(() => {
+    (async () => {
+      // Fetch projects + spaces for revenue
+      const { data: projs } = await supabase.from("projects").select("*").order("created_at", { ascending: false });
+      const { data: allSpaces } = await supabase.from("spaces").select("*");
+      const { data: dbCosts } = await supabase.from("costs").select("*");
+
+      if (projs && allSpaces) {
+        const spacesByProject = allSpaces.reduce((acc: Record<string, any[]>, s) => {
+          if (s.project_id) { acc[s.project_id] = acc[s.project_id] || []; acc[s.project_id].push(s); }
+          return acc;
+        }, {});
+        setRevenue(projs.map(p => ({
+          id: p.id,
+          client_name: p.client_name,
+          amount: (spacesByProject[p.id] || []).reduce((s: number, sp: any) => s + (sp.price || 0), 0),
+          date: p.created_at ? new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+          spaces: (spacesByProject[p.id] || []).map((sp: any) => sp.space_label).join(", "),
+        })));
+      }
+
+      if (dbCosts) setCosts(dbCosts.map(c => ({ id: c.id, description: c.description, amount: c.amount })));
+      setLoading(false);
+    })();
+  }, []);
+
+  const totalRevenue = revenue.reduce((sum, r) => sum + r.amount, 0);
   const totalCosts = costs.reduce((sum, c) => sum + c.amount, 0);
   const grossMargin = totalRevenue - totalCosts;
 
-  const addCost = () => {
+  const addCost = async () => {
     if (!newLabel.trim() || !newAmount) return;
-    setCosts((prev) => [...prev, { id: crypto.randomUUID(), label: newLabel.trim(), amount: parseFloat(newAmount) }]);
+    const { data } = await supabase.from("costs").insert({ description: newLabel.trim(), amount: parseFloat(newAmount) }).select().single();
+    if (data) setCosts(prev => [...prev, { id: data.id, description: data.description, amount: data.amount }]);
     setNewLabel("");
     setNewAmount("");
   };
 
-  const removeCost = (id: string) => setCosts((prev) => prev.filter((c) => c.id !== id));
+  const removeCost = async (id: string) => {
+    await supabase.from("costs").delete().eq("id", id);
+    setCosts(prev => prev.filter(c => c.id !== id));
+  };
+
+  if (loading) return <div className="text-muted-foreground text-sm">Loading...</div>;
 
   return (
     <div>
@@ -68,11 +102,11 @@ export function AdminFinancial() {
         <div className="border border-border rounded-lg p-5">
           <div className="text-xs text-muted-foreground tracking-wide uppercase">Gross Margin</div>
           <div className="mt-1 text-2xl font-medium text-success">${grossMargin.toLocaleString()}</div>
-          <div className="text-xs text-muted-foreground mt-1">{((grossMargin / totalRevenue) * 100).toFixed(1)}%</div>
+          {totalRevenue > 0 && <div className="text-xs text-muted-foreground mt-1">{((grossMargin / totalRevenue) * 100).toFixed(1)}%</div>}
         </div>
       </div>
 
-      {/* Revenue by space */}
+      {/* Transactions */}
       <div className="mt-8">
         <h3 className="text-lg font-medium text-foreground tracking-wide">Transactions</h3>
         <div className="mt-4 border border-border rounded-lg overflow-hidden">
@@ -86,14 +120,17 @@ export function AdminFinancial() {
               </tr>
             </thead>
             <tbody>
-              {mockRevenue.map((r) => (
+              {revenue.map((r) => (
                 <tr key={r.id} className="border-t border-border">
-                  <td className="p-3 text-foreground">{r.client}</td>
-                  <td className="p-3 text-muted-foreground font-light">{r.space}</td>
+                  <td className="p-3 text-foreground">{r.client_name}</td>
+                  <td className="p-3 text-muted-foreground font-light">{r.spaces}</td>
                   <td className="p-3 text-muted-foreground font-light">{r.date}</td>
                   <td className="p-3 text-right text-foreground font-medium">${r.amount}</td>
                 </tr>
               ))}
+              {revenue.length === 0 && (
+                <tr><td colSpan={4} className="p-3 text-center text-muted-foreground">No transactions yet.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -105,7 +142,7 @@ export function AdminFinancial() {
         <div className="mt-4 space-y-2">
           {costs.map((c) => (
             <div key={c.id} className="flex items-center justify-between border border-border rounded-lg p-3">
-              <span className="text-foreground">{c.label}</span>
+              <span className="text-foreground">{c.description}</span>
               <div className="flex items-center gap-3">
                 <span className="text-foreground font-medium">${c.amount}</span>
                 <button onClick={() => removeCost(c.id)} className="text-muted-foreground hover:text-destructive">
@@ -124,7 +161,6 @@ export function AdminFinancial() {
 
       <div className="mt-8 flex gap-3">
         <Button variant="outline" size="sm"><Download className="w-4 h-4 mr-1" /> Export CSV</Button>
-        <Button variant="outline" size="sm">Sync to QuickBooks</Button>
       </div>
     </div>
   );
