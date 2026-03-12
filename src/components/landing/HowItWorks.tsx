@@ -5,8 +5,8 @@ const steps = [
     icon: ClipboardList,
     title: "Choose your space",
     description:
-      "Kitchen, closet, home office — pick the room and describe what you have in mind. Takes 2 minutes.",
-    detail: null,
+      "Kitchen, closet, home office — pick the room, share photos, references, and describe what you have in mind. The more detail you bring, the closer the first draft lands.",
+    detail: "No tape measure? Scan the space with your phone — no measuring tape needed.",
   },
   {
     icon: Star,
