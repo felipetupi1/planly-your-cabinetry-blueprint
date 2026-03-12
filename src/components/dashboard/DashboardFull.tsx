@@ -660,11 +660,20 @@ function SpaceBrief({spaceKey,data,onChange,projectId}: {spaceKey: string; data:
   );
 }
 
-function SectionBrief(){
-  const spaces=PROJECT.purchasedSpaces;
-  const [activeTab,setActiveTab]=useState(spaces[0].key);
+function SectionBrief({ project, spaces }: { project: ProjectData; spaces: SpaceData[] }){
+  const purchasedSpaces = spaces.map(s => ({ key: s.space_key, label: s.space_label, size: s.size || "M", price: s.price || 0, render3d: s.render_3d || false }));
+  const [activeTab,setActiveTab]=useState(purchasedSpaces[0]?.key || "");
   const [spaceData,setSpaceData]=useState<Record<string, SpaceDataItem>>(
-    Object.fromEntries(spaces.map(s=>[s.key,{room:{widthIn:180,depthIn:144,ceilIn:108},walls:{A:[],B:[],C:[],D:[]},files:[],description:"",appliances:{},scanStatus:"idle"}]))
+    Object.fromEntries(spaces.map(s=>[s.space_key,{
+      room: s.room_data?.room || {widthIn:180,depthIn:144,ceilIn:108},
+      walls: s.room_data?.walls || {A:[],B:[],C:[],D:[]},
+      files: [],
+      description: s.description || "",
+      appliances: s.room_data?.appliances || {},
+      scanStatus: (s.scan_status as ScanStatus) || "idle",
+      scanLink: s.scan_link || undefined,
+      floorPlanUrl: s.floor_plan_url || undefined,
+    }]))
   );
   const [saved,setSaved]=useState(false);
   const [submitted,setSubmitted]=useState(false);
