@@ -678,9 +678,22 @@ function SectionBrief({ project, spaces }: { project: ProjectData; spaces: Space
   const [saved,setSaved]=useState(false);
   const [submitted,setSubmitted]=useState(false);
 
-  const isComplete=(key: string)=>spaceData[key].description?.trim().length>0;
-  const allComplete=spaces.every(s=>isComplete(s.key));
-  const handleSave=()=>{setSaved(true);setTimeout(()=>setSaved(false),2500);};
+  const isComplete=(key: string)=>spaceData[key]?.description?.trim().length>0;
+  const allComplete=purchasedSpaces.every(s=>isComplete(s.key));
+  const handleSave=async()=>{
+    // Save each space's data to Supabase
+    for (const s of spaces) {
+      const sd = spaceData[s.space_key];
+      if (!sd) continue;
+      await supabase.from("spaces").update({
+        description: sd.description,
+        room_data: { room: sd.room, walls: sd.walls, appliances: sd.appliances },
+        scan_status: sd.scanStatus || "idle",
+        scan_link: sd.scanLink || null,
+      }).eq("id", s.id);
+    }
+    setSaved(true);setTimeout(()=>setSaved(false),2500);
+  };
 
   if(submitted){
     return(
