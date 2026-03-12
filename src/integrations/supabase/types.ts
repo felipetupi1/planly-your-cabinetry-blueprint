@@ -14,7 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      costs: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string
+          id: string
+          project_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description: string
+          id?: string
+          project_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string
+          id?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "costs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          from_role: string
+          id: string
+          project_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          from_role: string
+          id?: string
+          project_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          from_role?: string
+          id?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          access_token: string
+          client_email: string
+          client_name: string
+          created_at: string | null
+          deadline: string | null
+          id: string
+          notes: string | null
+          stage: string
+          stripe_session_id: string | null
+        }
+        Insert: {
+          access_token?: string
+          client_email: string
+          client_name: string
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          notes?: string | null
+          stage?: string
+          stripe_session_id?: string | null
+        }
+        Update: {
+          access_token?: string
+          client_email?: string
+          client_name?: string
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          notes?: string | null
+          stage?: string
+          stripe_session_id?: string | null
+        }
+        Relationships: []
+      }
+      spaces: {
+        Row: {
+          description: string | null
+          floor_plan_url: string | null
+          id: string
+          price: number | null
+          project_id: string | null
+          render_3d: boolean | null
+          room_data: Json | null
+          scan_link: string | null
+          scan_status: string | null
+          size: string | null
+          space_key: string
+          space_label: string
+          submitted_at: string | null
+        }
+        Insert: {
+          description?: string | null
+          floor_plan_url?: string | null
+          id?: string
+          price?: number | null
+          project_id?: string | null
+          render_3d?: boolean | null
+          room_data?: Json | null
+          scan_link?: string | null
+          scan_status?: string | null
+          size?: string | null
+          space_key: string
+          space_label: string
+          submitted_at?: string | null
+        }
+        Update: {
+          description?: string | null
+          floor_plan_url?: string | null
+          id?: string
+          price?: number | null
+          project_id?: string | null
+          render_3d?: boolean | null
+          room_data?: Json | null
+          scan_link?: string | null
+          scan_status?: string | null
+          size?: string | null
+          space_key?: string
+          space_label?: string
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spaces_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
