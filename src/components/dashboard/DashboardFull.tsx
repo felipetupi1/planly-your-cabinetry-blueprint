@@ -818,11 +818,35 @@ function SectionMessages(){
 const NAV=[{id:"project",label:"My Project"},{id:"brief",label:"Brief"},{id:"review",label:"Review"},{id:"delivery",label:"Delivery"},{id:"messages",label:"Messages"}];
 
 export default function Dashboard(){
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
   const [active,setActive]=useState("brief");
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [spaces, setSpaces] = useState<SpaceData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) { setError("No access token provided."); setLoading(false); return; }
+    (async () => {
+      const { data: proj, error: projErr } = await supabase
+        .from("projects").select("*").eq("access_token", token).single();
+      if (projErr || !proj) { setError("Project not found."); setLoading(false); return; }
+      setProject(proj);
+      const { data: sp } = await supabase
+        .from("spaces").select("*").eq("project_id", proj.id);
+      setSpaces(sp || []);
+      setLoading(false);
+    })();
+  }, [token]);
+
+  if (loading) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontFamily:"'Outfit', system-ui, sans-serif",color:C.muted}}>Loading...</div>;
+  if (error || !project) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontFamily:"'Outfit', system-ui, sans-serif",color:C.accent}}>{error || "Project not found."}</div>;
+
   const content=()=>{
     switch(active){
-      case "project":  return <SectionProject/>;
-      case "brief":    return <SectionBrief/>;
+      case "project":  return <SectionProject project={project} spaces={spaces}/>;
+      case "brief":    return spaces.length > 0 ? <SectionBrief project={project} spaces={spaces}/> : <p style={{color:C.muted}}>No spaces found.</p>;
       case "review":   return <SectionReview/>;
       case "delivery": return <SectionDelivery/>;
       case "messages": return <SectionMessages/>;
@@ -841,11 +865,11 @@ export default function Dashboard(){
         </nav>
         <div style={{padding:"14px 20px",borderTop:"1px solid rgba(255,255,255,0.1)"}}>
           <p style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:1,textTransform:"uppercase",margin:0}}>Project ID</p>
-          <p style={{fontSize:11,color:"rgba(255,255,255,0.6)",margin:"3px 0 0",fontWeight:300}}>{PROJECT.id}</p>
+          <p style={{fontSize:11,color:"rgba(255,255,255,0.6)",margin:"3px 0 0",fontWeight:300}}>{project.id.slice(0,8).toUpperCase()}</p>
         </div>
       </aside>
       <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
-        <StatusBar/>
+        <StatusBar currentStage={project.stage}/>
         <main style={{flex:1,padding:"26px 34px",overflowY:"auto"}}>
           <div style={{maxWidth:980}}>{content()}</div>
         </main>
