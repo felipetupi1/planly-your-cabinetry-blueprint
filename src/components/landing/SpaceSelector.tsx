@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, CuboidIcon, Calculator, MessageSquare } from "lucide-react";
+import { Minus, Plus, CuboidIcon, Calculator, MessageSquare, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 type Size = "small" | "medium" | "large";
 
