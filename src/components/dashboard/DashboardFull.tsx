@@ -747,16 +747,17 @@ function SectionBrief({ project, spaces }: { project: ProjectData; spaces: Space
   );
 }
 
-function SectionProject(){
-  const sub=PROJECT.purchasedSpaces.reduce((s,x)=>s+x.price+(x.render3d?150:0),0);
-  const disc=sub*0.1;
+function SectionProject({ project, spaces }: { project: ProjectData; spaces: SpaceData[] }){
+  const sub=spaces.reduce((s,x)=>s+(x.price||0)+(x.render_3d?150:0),0);
+  const disc=spaces.length>1?sub*0.1:0;
+  const dateStr = project.created_at ? new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
   return(
     <div>
       <h2 style={{fontSize:20,fontWeight:300,color:C.text,letterSpacing:2,textTransform:"uppercase",margin:0}}>My Project</h2>
       <p style={{marginTop:7,color:C.muted,fontWeight:300,fontSize:13}}>Summary of what was purchased.</p>
       <div style={{marginTop:7,display:"flex",gap:24,fontSize:12,color:C.muted}}>
-        <span>Project ID: <strong style={{color:C.text}}>{PROJECT.id}</strong></span>
-        <span>Date: <strong style={{color:C.text}}>{PROJECT.date}</strong></span>
+        <span>Project ID: <strong style={{color:C.text}}>{project.id.slice(0,8).toUpperCase()}</strong></span>
+        <span>Date: <strong style={{color:C.text}}>{dateStr}</strong></span>
       </div>
       <div style={{marginTop:18,border:`1px solid ${C.border}`,borderRadius:6,overflow:"hidden"}}>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
@@ -764,19 +765,19 @@ function SectionProject(){
             {["Space","Size","3D Render","Price"].map(h=><th key={h} style={{padding:"11px 16px",textAlign:"left" as const,fontWeight:500,color:C.text,fontSize:10,textTransform:"uppercase" as const,letterSpacing:1}}>{h}</th>)}
           </tr></thead>
           <tbody>
-            {PROJECT.purchasedSpaces.map((s,i)=>(
+            {spaces.map((s,i)=>(
               <tr key={i} style={{borderTop:`1px solid ${C.border}`}}>
-                <td style={{padding:"11px 16px",color:C.text}}>{ROOM_TYPES[s.key].icon} {s.label}</td>
+                <td style={{padding:"11px 16px",color:C.text}}>{ROOM_TYPES[s.space_key]?.icon} {s.space_label}</td>
                 <td style={{padding:"11px 16px",color:C.muted,fontWeight:300}}>{s.size}</td>
-                <td style={{padding:"11px 16px",color:C.muted,fontWeight:300}}>{s.render3d?"Yes (+$150)":"No"}</td>
-                <td style={{padding:"11px 16px",color:C.text,fontWeight:500}}>${s.price+(s.render3d?150:0)}</td>
+                <td style={{padding:"11px 16px",color:C.muted,fontWeight:300}}>{s.render_3d?"Yes (+$150)":"No"}</td>
+                <td style={{padding:"11px 16px",color:C.text,fontWeight:500}}>${(s.price||0)+(s.render_3d?150:0)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <div style={{padding:"11px 16px",borderTop:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between"}}>
-          <span style={{fontSize:12,color:C.success,fontWeight:500}}>Multi-space discount (10%) — −${disc}</span>
-          <span style={{fontSize:16,fontWeight:500,color:C.text}}>Total: ${sub-disc}</span>
+          {disc>0&&<span style={{fontSize:12,color:C.success,fontWeight:500}}>Multi-space discount (10%) — −${disc}</span>}
+          <span style={{fontSize:16,fontWeight:500,color:C.text,marginLeft:"auto"}}>Total: ${sub-disc}</span>
         </div>
       </div>
     </div>
