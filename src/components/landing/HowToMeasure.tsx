@@ -27,35 +27,39 @@ const tips = [
 
 export function HowToMeasure() {
   return (
-    <section className="py-24 px-6 bg-warm-gray">
+    <section className="py-24 px-6 bg-secondary">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
-          Before you start — what to measure
+
+        {/* Label */}
+        <div className="flex items-center justify-center gap-3 mb-5">
+          <div className="w-6 h-px bg-accent" />
+          <span className="text-xs tracking-widest uppercase text-accent font-medium">
+            Before you start
+          </span>
+          <div className="w-6 h-px bg-accent" />
+        </div>
+
+        <h2 className="text-3xl md:text-4xl font-light text-center text-foreground tracking-tight">
+          What to measure
         </h2>
-        <p className="mt-3 text-center text-muted-foreground max-w-2xl mx-auto font-light">
-          You don't need to be precise to the millimeter. But the more accurate your measurements, the better your project will turn out.
+        <p className="mt-4 text-center text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
+          You don't need to be precise to the millimeter. Approximate measurements are a good start —
+          and if you'd rather skip the tape measure entirely, you can scan your space in 3D directly
+          from your dashboard after signing up.
         </p>
 
-        <div className="mt-14 grid md:grid-cols-2 gap-5">
+        <div className="mt-14 grid md:grid-cols-2 gap-4">
           {tips.map((tip, i) => (
-            <div key={i} className="bg-background rounded-lg p-6">
-              <h3 className="font-medium text-foreground tracking-wide">{tip.title}</h3>
+            <div key={i} className="bg-background border border-border rounded-sm p-6">
+              <h3 className="font-medium text-foreground tracking-wide text-sm uppercase">{tip.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light">
                 {tip.text}
               </p>
             </div>
           ))}
-
-          {/* CTA tip — styled differently */}
-          <div className="md:col-span-2 bg-background rounded-lg p-6">
-            <h3 className="text-lg font-medium text-accent tracking-wide">When in doubt, scan</h3>
-            <p className="mt-2 text-muted-foreground leading-relaxed font-light">
-              Not sure about any of this? You can scan your space in 3D directly from your dashboard — no measuring tape needed.
-            </p>
-          </div>
         </div>
 
-        <p className="mt-8 text-sm text-foreground font-light italic text-center">
+        <p className="mt-8 text-sm text-muted-foreground font-light italic text-center">
           Don't worry about being perfectly precise — your cabinetmaker will conduct a final on-site measurement before fabrication.
         </p>
       </div>
