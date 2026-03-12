@@ -7,8 +7,9 @@ import { WhatsIncluded } from "@/components/landing/WhatsIncluded";
 import { HowToMeasure } from "@/components/landing/HowToMeasure";
 import { Portfolio } from "@/components/landing/Portfolio";
 import { Reviews } from "@/components/landing/Reviews";
-import { Contact } from "@/components/landing/Contact";
+import { FounderSection } from "@/components/landing/FounderSection";
 import { FAQ } from "@/components/landing/FAQ";
+import { Contact } from "@/components/landing/Contact";
 import { Footer } from "@/components/landing/Footer";
 
 const Index = () => {
@@ -24,6 +25,7 @@ const Index = () => {
         <HowToMeasure />
         <Portfolio />
         <Reviews />
+        <FounderSection />
         <FAQ />
         <Contact />
       </main>
