@@ -537,7 +537,7 @@ function SpaceBrief({spaceKey,data,onChange,projectId}: {spaceKey: string; data:
       {/* ── CubiCasa Scan Card ── */}
       <ScanCard
         spaceLabel={rt.label}
-        projectId={PROJECT.id}
+        projectId={projectId}
         spaceKey={spaceKey}
         scanStatus={data.scanStatus || "idle"}
         scanLink={data.scanLink}
