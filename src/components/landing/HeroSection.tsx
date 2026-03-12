@@ -24,7 +24,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[92vh] flex flex-col items-center justify-start px-6 overflow-hidden pt-25">
+    <section className="relative min-h-[92vh] flex flex-col items-center justify-start px-6 overflow-hidden pt-26">
 
       {/* Subtle background grid */}
       <div
