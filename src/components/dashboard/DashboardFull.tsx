@@ -62,7 +62,6 @@ const ELEMENT_TYPES: Record<string, { label: string; icon: string; color: string
 };
 
 const STAGES = ["Payment","Brief","In Progress","1st Draft","Revision 1","Revision 2","Final Production","Delivered"];
-const CURRENT_STAGE = "Brief";
 
 interface RoomElement {
   id: string;
