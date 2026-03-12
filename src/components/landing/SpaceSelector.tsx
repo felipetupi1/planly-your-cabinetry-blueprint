@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, CuboidIcon, Calculator, MessageSquare } from "lucide-react";
+import { Minus, Plus, CuboidIcon, Calculator, MessageSquare, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 type Size = "small" | "medium" | "large";
 
@@ -51,6 +53,9 @@ function sqftToSize(sqft: number): Size {
 export function SpaceSelector() {
   const [selectedSpaces, setSelectedSpaces] = useState<SelectedSpace[]>([]);
   const [showCustom, setShowCustom] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
 
   const addSpace = (space: SpaceConfig, size: Size) => {
     const price = space.prices[size];
@@ -171,12 +176,59 @@ export function SpaceSelector() {
               </div>
             </div>
 
+            <div className="mt-4 pt-4 border-t border-border space-y-3">
+              <Input
+                placeholder="Your name"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+              />
+              <Input
+                placeholder="Your email"
+                type="email"
+                value={clientEmail}
+                onChange={(e) => setClientEmail(e.target.value)}
+              />
+            </div>
+
             <p className="text-[10px] text-muted-foreground font-light mt-4 leading-relaxed">
               Projects are based on client-provided measurements. An on-site measurement visit by your cabinetmaker prior to fabrication is always recommended.
             </p>
 
-            <Button variant="hero" className="w-full mt-4">
-              Proceed to checkout
+            <Button
+              variant="hero"
+              className="w-full mt-4"
+              disabled={checkoutLoading || !clientName.trim() || !clientEmail.trim()}
+              onClick={async () => {
+                setCheckoutLoading(true);
+                try {
+                  const { data, error } = await supabase.functions.invoke("create-checkout", {
+                    body: {
+                      spaces: selectedSpaces.map((s) => ({
+                        name: s.name,
+                        size: s.size,
+                        price: s.price,
+                        render3d: s.render3d,
+                      })),
+                      clientName: clientName.trim(),
+                      clientEmail: clientEmail.trim(),
+                      originUrl: window.location.origin,
+                    },
+                  });
+                  if (error) throw error;
+                  if (data?.url) {
+                    window.location.href = data.url;
+                  } else {
+                    throw new Error("No checkout URL returned");
+                  }
+                } catch (err: any) {
+                  console.error(err);
+                  toast({ title: "Checkout failed", description: err.message, variant: "destructive" });
+                  setCheckoutLoading(false);
+                }
+              }}
+            >
+              {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {checkoutLoading ? "Redirecting…" : "Proceed to checkout"}
             </Button>
           </div>
         )}
