@@ -14,6 +14,53 @@ interface SpaceItem {
   render3d: boolean;
 }
 
+function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: string): string {
+  const spacesList = spaces
+    .map((s) => `<li style="padding:4px 0;font-size:15px;color:#333;">${s.name} — ${s.size}${s.render3d ? ' (+ 3D Render)' : ''}</li>`)
+    .join("");
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:40px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;">
+  <!-- Header -->
+  <tr><td style="background-color:#1e3a5f;padding:32px 40px;text-align:center;">
+    <h1 style="margin:0;font-size:24px;color:#ffffff;font-weight:700;letter-spacing:0.5px;">MEASURED</h1>
+  </td></tr>
+  <!-- Body -->
+  <tr><td style="padding:40px;">
+    <p style="font-size:16px;color:#333;margin:0 0 20px;">Hi ${clientName},</p>
+    <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 20px;">
+      Thank you — your payment has been received and your project is now set up! Here's what you ordered:
+    </p>
+    <ul style="margin:0 0 24px;padding-left:20px;">${spacesList}</ul>
+    <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 28px;">
+      Your personal dashboard is ready. Click below to get started by submitting your project brief:
+    </p>
+    <!-- CTA -->
+    <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+      <a href="${dashboardUrl}" target="_blank"
+         style="display:inline-block;background-color:#c1440e;color:#ffffff;font-size:16px;font-weight:600;
+                padding:14px 36px;border-radius:6px;text-decoration:none;">
+        Go to My Dashboard
+      </a>
+    </td></tr></table>
+    <p style="font-size:14px;color:#666;line-height:1.6;margin:28px 0 0;">
+      Your first draft will be ready within <strong>7 business days</strong>. We'll notify you as soon as it's available for review.
+    </p>
+  </td></tr>
+  <!-- Footer -->
+  <tr><td style="background-color:#1e3a5f;padding:24px 40px;text-align:center;">
+    <p style="margin:0;font-size:13px;color:#a0b4c8;">© ${new Date().getFullYear()} Measured. All rights reserved.</p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -100,6 +147,40 @@ Deno.serve(async (req) => {
       }
 
       console.log(`Project ${project.id} created for ${clientEmail}`);
+
+      // Send confirmation email via Resend
+      const resendApiKey = Deno.env.get("RESEND_API_KEY");
+      if (resendApiKey) {
+        const dashboardUrl = `https://millwork-maker-pro.lovable.app/dashboard?token=${accessToken}`;
+        const htmlBody = buildEmailHtml(clientName, spaces, dashboardUrl);
+
+        try {
+          const emailRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${resendApiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Measured <hello@measured.com>",
+              to: [clientEmail],
+              subject: "Your Measured project is ready — here's your link",
+              html: htmlBody,
+            }),
+          });
+
+          if (!emailRes.ok) {
+            const errBody = await emailRes.text();
+            console.error(`Resend email failed [${emailRes.status}]: ${errBody}`);
+          } else {
+            console.log(`Confirmation email sent to ${clientEmail}`);
+          }
+        } catch (emailErr) {
+          console.error("Email send error:", emailErr);
+        }
+      } else {
+        console.warn("RESEND_API_KEY not set, skipping confirmation email");
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {
