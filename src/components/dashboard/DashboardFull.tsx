@@ -118,21 +118,25 @@ function ScanCard({ spaceLabel, projectId, spaceKey, scanStatus, scanLink, floor
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // In production: call a Supabase Edge Function that holds the CubiCasa API key
-  // and creates a GoToScan order via POST /api/integrate/v3/gotoscan
-  // The edge function returns the GoToScan dynamic link.
-  // Here we simulate that flow for prototype purposes.
   const handleGenerateLink = async () => {
     setLoading(true);
-    // Simulated delay (replace with real Supabase Edge Function call)
-    await new Promise(r => setTimeout(r, 1400));
-    const externalId = `${projectId}-${spaceKey}-${Date.now()}`;
-    // Real link format (edge function would return this):
-    // https://api.cubi.casa/conversion/gotoscan?token=TOKEN&external_id=EXT_ID&webhook_url=WEBHOOK
-    const mockLink = `https://gotoscan.cubi.casa/start?external_id=${externalId}`;
-    setLoading(false);
-    onScanRequested(mockLink);
-    setShowModal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("cubicasa-gotoscan", {
+        body: { projectId, spaceKey, spaceLabel },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const link = data.scanLink;
+      onScanRequested(link);
+      setShowModal(true);
+    } catch (err: any) {
+      console.error("GoToScan error:", err);
+      alert("Failed to generate scan link. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (scanStatus === "received") {
@@ -677,6 +681,42 @@ function SectionBrief({ project, spaces }: { project: ProjectData; spaces: Space
   );
   const [saved,setSaved]=useState(false);
   const [submitted,setSubmitted]=useState(false);
+
+  // Realtime subscription: auto-update scan status when CubiCasa webhook fires
+  useEffect(() => {
+    const channel = supabase
+      .channel('spaces-scan-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'spaces',
+          filter: `project_id=eq.${project.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as SpaceData;
+          setSpaceData(prev => {
+            const existing = prev[updated.space_key];
+            if (!existing) return prev;
+            return {
+              ...prev,
+              [updated.space_key]: {
+                ...existing,
+                scanStatus: (updated.scan_status as ScanStatus) || existing.scanStatus,
+                scanLink: updated.scan_link || existing.scanLink,
+                floorPlanUrl: updated.floor_plan_url || existing.floorPlanUrl,
+              },
+            };
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [project.id]);
 
   const isComplete=(key: string)=>spaceData[key]?.description?.trim().length>0;
   const allComplete=purchasedSpaces.every(s=>isComplete(s.key));
