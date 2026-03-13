@@ -682,6 +682,42 @@ function SectionBrief({ project, spaces }: { project: ProjectData; spaces: Space
   const [saved,setSaved]=useState(false);
   const [submitted,setSubmitted]=useState(false);
 
+  // Realtime subscription: auto-update scan status when CubiCasa webhook fires
+  useEffect(() => {
+    const channel = supabase
+      .channel('spaces-scan-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'spaces',
+          filter: `project_id=eq.${project.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as SpaceData;
+          setSpaceData(prev => {
+            const existing = prev[updated.space_key];
+            if (!existing) return prev;
+            return {
+              ...prev,
+              [updated.space_key]: {
+                ...existing,
+                scanStatus: (updated.scan_status as ScanStatus) || existing.scanStatus,
+                scanLink: updated.scan_link || existing.scanLink,
+                floorPlanUrl: updated.floor_plan_url || existing.floorPlanUrl,
+              },
+            };
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [project.id]);
+
   const isComplete=(key: string)=>spaceData[key]?.description?.trim().length>0;
   const allComplete=purchasedSpaces.every(s=>isComplete(s.key));
   const handleSave=async()=>{
