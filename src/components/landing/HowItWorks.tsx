@@ -1,12 +1,12 @@
-import { ClipboardList, Star, Users } from "lucide-react";
+import { Camera, Star, Hand } from "lucide-react";
 
 const steps = [
   {
-    icon: ClipboardList,
-    title: "Choose your space",
+    icon: Camera,
+    title: "Scan your space",
     description:
-      "Kitchen, closet, home office — pick the room, share photos, references, and describe what you have in mind. The more detail you bring, the closer the first draft lands.",
-    detail: "No tape measure? Scan the space with your phone — no measuring tape needed.",
+      "Download the CubiCasa app and scan your room in 2–5 minutes. No measuring tape needed.",
+    detail: "Available on iOS and Android. The scan captures accurate dimensions automatically.",
   },
   {
     icon: Star,
@@ -16,8 +16,8 @@ const steps = [
     detail: "First draft · 7 business days · Revisions · 3 days each · Final docs · 5 days after approval",
   },
   {
-    icon: Users,
-    title: "You walk in in control",
+    icon: Hand,
+    title: "You walk in control",
     description:
       "Take your project to any cabinetmaker. Compare quotes with the same specs. Decide on your terms — not theirs.",
     detail: null,
