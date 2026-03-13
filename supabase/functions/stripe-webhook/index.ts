@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "Measured <hello@measured.com>",
+              from: "Measured <onboarding@resend.dev>",
               to: [clientEmail],
               subject: "Your Measured project is ready — here's your link",
               html: htmlBody,
