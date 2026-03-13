@@ -1,11 +1,10 @@
-import { FileText, Ruler, RefreshCcw, Clock, ShoppingCart } from "lucide-react";
+import { FileText, Ruler, RefreshCcw, Clock } from "lucide-react";
 
 const items = [
   { icon: Ruler, text: "Floor plan, sections, and elevations" },
   { icon: FileText, text: "Construction-ready documents (PDF + DWG)" },
   { icon: RefreshCcw, text: "2 rounds of revisions with approval required at each stage" },
   { icon: Clock, text: "7 business day delivery from payment" },
-  { icon: ShoppingCart, text: "Option to purchase additional revision rounds" },
 ];
 
 export function WhatsIncluded() {
