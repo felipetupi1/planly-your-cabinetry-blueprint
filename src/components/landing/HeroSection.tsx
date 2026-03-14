@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
-const ROTATING_WORDS = ["kitchen", "closet", "office", "pantry", "bathroom"];
+const ROTATING_WORDS = ["kitchen", "closet", "bathroom", "pantry"];
 
 export function HeroSection() {
   const [wordIndex, setWordIndex] = useState(0);
