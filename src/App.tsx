@@ -16,9 +16,46 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function ProtectedAdmin() {
-  // TEMPORARY BYPASS - Authentication disabled for testing
-  // To re-enable: restore the original auth check logic
-  return <Admin />;
+  const [state, setState] = useState<"loading" | "authorized" | "unauthorized">("loading");
+  const [teamRole, setTeamRole] = useState("admin");
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setState("unauthorized");
+        return;
+      }
+
+      const { data: teamMember } = await supabase
+        .from("team_members")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (teamMember) {
+        setTeamRole(teamMember.role);
+        setState("authorized");
+      } else {
+        setState("unauthorized");
+      }
+    };
+    check();
+  }, []);
+
+  if (state === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-xs text-muted-foreground tracking-wide">Loading...</p>
+      </div>
+    );
+  }
+
+  if (state === "unauthorized") {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Admin teamRole={teamRole} />;
 }
 
 const App = () => (
