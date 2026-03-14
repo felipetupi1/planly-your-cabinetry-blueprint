@@ -913,6 +913,13 @@ export default function Dashboard(){
         <main style={{flex:1,padding:"26px 34px",overflowY:"auto"}}>
           <div style={{maxWidth:980}}>{content()}</div>
         </main>
+        {project.stage.toLowerCase() === "brief" && (
+          <div style={{padding:"16px 34px",borderTop:`1px solid ${C.border}`,background:C.bg,textAlign:"center"}}>
+            <a href="mailto:hello@measured.com" style={{fontSize:12,color:C.muted,fontWeight:300,textDecoration:"none"}}>
+              Need to cancel? Request a refund by emailing hello@measured.com
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );

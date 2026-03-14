@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -35,6 +36,12 @@ export function Navbar() {
               {link.label}
             </button>
           ))}
+          <Link
+            to="/login"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors tracking-wide"
+          >
+            Sign in
+          </Link>
           <Button variant="navyCta" size="sm" onClick={() => scrollTo("space-selector")}>
             Start your project
           </Button>
@@ -58,6 +65,12 @@ export function Navbar() {
               {link.label}
             </button>
           ))}
+          <Link
+            to="/login"
+            className="block text-sm text-muted-foreground hover:text-foreground tracking-wide"
+          >
+            Sign in
+          </Link>
           <Button variant="navyCta" size="sm" className="w-full" onClick={() => scrollTo("space-selector")}>
             Start your project
           </Button>
