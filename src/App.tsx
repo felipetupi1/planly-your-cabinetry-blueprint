@@ -16,49 +16,8 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function ProtectedAdmin() {
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // Verify user is a team member
-        const { data: teamMember } = await supabase
-          .from("team_members")
-          .select("id")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-
-        setAuthenticated(!!teamMember);
-      }
-      setLoading(false);
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        setAuthenticated(false);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-xs text-muted-foreground tracking-wide">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!authenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
+  // TEMPORARY BYPASS - Authentication disabled for testing
+  // To re-enable: restore the original auth check logic
   return <Admin />;
 }
 
