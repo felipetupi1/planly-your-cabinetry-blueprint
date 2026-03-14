@@ -107,6 +107,9 @@ export default function Admin() {
             </button>
           ))}
         </nav>
+        <div className="mt-auto pb-4">
+          <ChangePasswordModal />
+        </div>
       </aside>
 
       {/* Main content */}
