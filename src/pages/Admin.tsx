@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminPortfolio } from "@/components/admin/AdminPortfolio";
 import { AdminProjects } from "@/components/admin/AdminProjects";
 import { AdminFinancial } from "@/components/admin/AdminFinancial";
 import { AdminReviews } from "@/components/admin/AdminReviews";
 import { AdminCMS } from "@/components/admin/AdminCMS";
 import { AdminSettings } from "@/components/admin/AdminSettings";
+import { ChangePasswordModal } from "@/components/admin/ChangePasswordModal";
 
 const ADMIN_PASSWORD = "measured2024";
 
@@ -107,6 +107,9 @@ export default function Admin() {
             </button>
           ))}
         </nav>
+        <div className="mt-auto pb-4">
+          <ChangePasswordModal />
+        </div>
       </aside>
 
       {/* Main content */}
