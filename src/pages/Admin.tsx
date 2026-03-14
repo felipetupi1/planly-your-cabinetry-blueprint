@@ -7,8 +7,8 @@ import { AdminReviews } from "@/components/admin/AdminReviews";
 import { AdminCMS } from "@/components/admin/AdminCMS";
 import { AdminSettings } from "@/components/admin/AdminSettings";
 import { ChangePasswordModal } from "@/components/admin/ChangePasswordModal";
-
-const ADMIN_PASSWORD = "measured2024";
+import { supabase } from "@/integrations/supabase/client";
+import { LogOut } from "lucide-react";
 
 const adminSections = [
   { id: "projects", label: "Projects" },
@@ -19,49 +19,14 @@ const adminSections = [
   { id: "settings", label: "Settings", adminOnly: true },
 ];
 
-export default function Admin() {
-  const [authed, setAuthed] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
-  const [isTeamMember, setIsTeamMember] = useState(false);
+export default function Admin({ teamRole }: { teamRole: string }) {
   const [activeSection, setActiveSection] = useState("projects");
+  const isTeamMember = teamRole === "team";
 
-  const login = () => {
-    if (password === ADMIN_PASSWORD) {
-      setAuthed(true);
-      setIsTeamMember(false);
-      setError(false);
-    } else if (password === "team2024") {
-      setAuthed(true);
-      setIsTeamMember(true);
-      setError(false);
-    } else {
-      setError(true);
-    }
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
   };
-
-  if (!authed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-background">
-        <div className="w-full max-w-sm">
-          <h1 className="dash-title text-center text-foreground">MEASURED</h1>
-          <p className="mt-2 text-center dash-label">Admin Access</p>
-          <div className="mt-8 space-y-3">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && login()}
-              placeholder="Enter password"
-              className="w-full border border-input rounded-[2px] px-3 py-2.5 text-xs font-light bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-            {error && <p className="text-xs text-destructive">Incorrect password.</p>}
-            <Button variant="hero" className="w-full" onClick={login}>Enter</Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const visibleSections = adminSections.filter(
     (s) => !s.adminOnly || !isTeamMember
@@ -81,7 +46,6 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Admin sidebar — darker navy */}
       <aside
         className="w-[220px] min-h-screen flex flex-col flex-shrink-0"
         style={{ background: "hsl(218 50% 13%)" }}
@@ -107,12 +71,18 @@ export default function Admin() {
             </button>
           ))}
         </nav>
-        <div className="mt-auto pb-4">
+        <div className="mt-auto pb-4 space-y-1">
           <ChangePasswordModal />
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-[10px] tracking-[2px] uppercase text-white/40 hover:text-white/70 transition-colors px-5 py-2"
+          >
+            <LogOut className="w-3 h-3" />
+            Sign out
+          </button>
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen bg-background">
         <header className="border-b border-border px-12 h-14 flex items-center">
           <span className="dash-label">{visibleSections.find((s) => s.id === activeSection)?.label}</span>
