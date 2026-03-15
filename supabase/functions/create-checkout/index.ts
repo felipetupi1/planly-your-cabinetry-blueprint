@@ -8,21 +8,21 @@ const corsHeaders = {
 };
 
 const PRICE_MAP: Record<string, string> = {
-  "Kitchen-small": "price_1TAExv2Y3oH19O8usOYFuf5R",
-  "Kitchen-medium": "price_1TAEyC2Y3oH19O8uK4WGTcdy",
-  "Kitchen-large": "price_1TAEya2Y3oH19O8u8gcP5MMZ",
-  "Closet-small": "price_1TAEyt2Y3oH19O8uZbFOzgUx",
-  "Closet-medium": "price_1TAEzK2Y3oH19O8uu6pRXlzB",
-  "Closet-large": "price_1TAFEd2Y3oH19O8u95UFyvMr",
-  "Bathroom-small": "price_1TAEzg2Y3oH19O8uv1g77IQV",
-  "Bathroom-medium": "price_1TAFF12Y3oH19O8u1qXjZS0r",
-  "Bathroom-large": "price_1TAFFS2Y3oH19O8uo12EzL1T",
-  "Pantry-small": "price_1TAFFq2Y3oH19O8uZB0BLVKn",
-  "Pantry-medium": "price_1TAFGI2Y3oH19O8uuIlFbtPZ",
-  "Pantry-large": "price_1TAFGg2Y3oH19O8uag0wdAB4",
+  "Kitchen-small": "price_1TB2R82XCckYiktxzry1pdvi",
+  "Kitchen-medium": "price_1TB2Rn2XCckYiktxItLLsPud",
+  "Kitchen-large": "price_1TB2SB2XCckYiktxTDqugEeM",
+  "Closet-small": "price_1TB2Sa2XCckYiktxXyAxOKMe",
+  "Closet-medium": "price_1TB2Sy2XCckYiktx3qRjPgn2",
+  "Closet-large": "price_1TB2Tl2XCckYiktxMnLiMxYD",
+  "Bathroom-small": "price_1TB2UB2XCckYiktxmmlUc3Rg",
+  "Bathroom-medium": "price_1TB2Us2XCckYiktxIrv5Fnjv",
+  "Bathroom-large": "price_1TB2VY2XCckYiktxnZiWF9Ur",
+  "Pantry-small": "price_1TB2Vs2XCckYiktxCreNpRqq",
+  "Pantry-medium": "price_1TB2WD2XCckYiktxy9Rqpe5n",
+  "Pantry-large": "price_1TB2WW2XCckYiktx8MJBD1Q4",
 };
 
-const RENDER_PRICE = "price_1TAF0m2Y3oH19O8uQImUTnXT";
+const RENDER_PRICE = "price_1TB2Wt2XCckYiktxYjr7UGfJ";
 
 interface SpaceItem {
   name: string;
