@@ -81,8 +81,8 @@ Deno.serve(async (req) => {
       mode: "payment",
       line_items: lineItems,
       customer_email: clientEmail,
-      success_url: `${originUrl}/dashboard?token=${accessToken}`,
-      cancel_url: originUrl,
+      success_url: `https://yourmeasured.com/success?token=${accessToken}`,
+      cancel_url: `https://yourmeasured.com/pricing`,
       metadata: {
         client_name: clientName,
         client_email: clientEmail,
