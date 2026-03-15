@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import Success from "./pages/Success";
 
 const queryClient = new QueryClient();
 
