@@ -38,11 +38,12 @@ export default function Success() {
     async function fetchProject() {
       const { data: proj, error: projErr } = await supabase
         .from("projects")
-        .select("id, client_name, client_email, stage, created_at")
+        .select("*")
         .eq("access_token", token!)
         .maybeSingle();
 
       if (projErr) {
+        console.error("Error fetching project:", projErr);
         setError("Could not load project details.");
         setLoading(false);
         return;
