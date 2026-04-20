@@ -3,10 +3,10 @@ import { Camera, Star, Hand } from "lucide-react";
 const steps = [
   {
     icon: Camera,
-    title: "Scan your space",
+    title: "Describe your space",
     description:
-      "Download the CubiCasa app and scan your room in 2–5 minutes. No measuring tape needed.",
-    detail: "Available on iOS and Android. The scan captures accurate dimensions automatically.",
+      "Tell us about your space — dimensions, walls, windows, and what you're looking for. No app needed to get started. You can always add more detail later.",
+    detail: null,
   },
   {
     icon: Star,

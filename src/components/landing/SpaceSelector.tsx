@@ -14,11 +14,10 @@ interface SpaceConfig {
 }
 
 const SPACES: SpaceConfig[] = [
-  { name: "Kitchen", hint: "Most kitchens are 100–200 sq/ft", prices: { small: 350, medium: 550, large: 850 } },
-  { name: "Living / Family Room", hint: "Most living rooms are 150–250 sq/ft", prices: { small: 300, medium: 500, large: 750 } },
-  { name: "Closet", hint: "Most closets are 25–100 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
-  { name: "Pantry", hint: "Most pantries are under 80 sq/ft", prices: { small: 200, medium: 350, large: null } },
-  { name: "Bathroom", hint: "Most bathrooms are 40–100 sq/ft", prices: { small: 200, medium: 350, large: 500 } },
+  { name: "Kitchen", hint: "Small: up to 10×10 ft · Medium: up to 12×15 ft · Large: over 15×15 ft", prices: { small: 350, medium: 550, large: 850 } },
+  { name: "Closet", hint: "Small: reach-in or single wall · Medium: walk-in up to 8×10 ft · Large: over 8×10 ft", prices: { small: 250, medium: 400, large: 600 } },
+  { name: "Pantry", hint: "Small: cabinet pantry · Medium: walk-in up to 5×6 ft · Large: over 5×6 ft", prices: { small: 200, medium: 350, large: null } },
+  { name: "Bathroom", hint: "Small: single vanity · Medium: double vanity · Large: full bath with custom storage", prices: { small: 200, medium: 350, large: 500 } },
   { name: "Home Office", hint: "Most home offices are 80–150 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
   { name: "Bedroom", hint: "Most bedrooms are 100–200 sq/ft", prices: { small: 250, medium: 400, large: 600 } },
   { name: "Mudroom", hint: "Most mudrooms are 40–100 sq/ft", prices: { small: 200, medium: 300, large: 450 } },

@@ -56,22 +56,8 @@ export function HeroSection() {
           className="font-extralight text-foreground leading-tight"
           style={{ fontSize: "clamp(2.8rem, 8vw, 6.5rem)", letterSpacing: "-0.02em" }}
         >
-          Your{" "}
-          <span
-            className="text-accent font-light"
-            style={{
-              display: "inline-block",
-              minWidth: "5ch",
-              transition: "opacity 0.35s ease, transform 0.35s ease",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(-6px)",
-            }}
-          >
-            {ROTATING_WORDS[wordIndex]}
-          </span>
-          ,<br />
-          your terms.{" "}
-          <span className="font-medium">You choose who builds it.</span>
+          Walk into any cabinetmaker{" "}
+          <span className="font-medium">knowing exactly what you want.</span>
         </h1>
 
         {/* Divider */}

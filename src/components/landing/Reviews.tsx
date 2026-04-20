@@ -27,7 +27,7 @@ const mockReviews: Review[] = [
     id: "3",
     text: "Got three quotes from different cabinetmakers using the same set of documents. Saved me thousands by being able to compare apples to apples.",
     clientName: "Ana L.",
-    spaceType: "Home Office",
+    spaceType: "Pantry",
     rating: 5,
   },
   {
