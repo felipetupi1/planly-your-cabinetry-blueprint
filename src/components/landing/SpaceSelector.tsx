@@ -72,6 +72,25 @@ export function SpaceSelector() {
     );
   };
 
+  const upsertLead = async (nameVal: string, emailVal: string) => {
+    const email = emailVal.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    try {
+      await supabase
+        .from("leads")
+        .upsert(
+          {
+            name: nameVal.trim() || null,
+            email,
+            spaces_selected: selectedSpaces as any,
+          },
+          { onConflict: "email" }
+        );
+    } catch (err) {
+      console.error("Lead upsert failed", err);
+    }
+  };
+
   const subtotal = selectedSpaces.reduce((sum, s) => sum + s.price + (s.render3d ? 150 : 0), 0);
   const discount = getDiscount(selectedSpaces.length);
   const total = subtotal * (1 - discount);
@@ -180,12 +199,14 @@ export function SpaceSelector() {
                 placeholder="Your name"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
+                onBlur={(e) => upsertLead(e.target.value, clientEmail)}
               />
               <Input
                 placeholder="Your email"
                 type="email"
                 value={clientEmail}
                 onChange={(e) => setClientEmail(e.target.value)}
+                onBlur={(e) => upsertLead(clientName, e.target.value)}
               />
             </div>
 

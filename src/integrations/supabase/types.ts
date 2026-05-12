@@ -46,6 +46,36 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          converted: boolean
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          spaces_selected: Json | null
+          updated_at: string
+        }
+        Insert: {
+          converted?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          spaces_selected?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          converted?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          spaces_selected?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
