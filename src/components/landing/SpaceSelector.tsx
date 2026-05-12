@@ -80,7 +80,7 @@ export function SpaceSelector() {
     <section id="space-selector" className="py-24 px-6">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
-          Select your spaces
+          Custom Cabinetry Design Pricing — Choose Your Space
         </h2>
         <p className="mt-3 text-center text-muted-foreground font-light">
           Choose your rooms and sizes. Multi-space discounts apply automatically.

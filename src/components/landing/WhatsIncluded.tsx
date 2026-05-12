@@ -12,7 +12,7 @@ export function WhatsIncluded() {
     <section className="py-24 px-6 bg-secondary">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
-          What's included
+          What's Included in Your Cabinetry Design Package
         </h2>
         <div className="mt-12 grid sm:grid-cols-2 gap-5">
           {items.map((item, i) => (
