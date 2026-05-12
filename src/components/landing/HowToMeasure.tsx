@@ -40,7 +40,7 @@ export function HowToMeasure() {
         </div>
 
         <h2 className="text-3xl md:text-4xl font-light text-center text-foreground tracking-tight">
-          What to measure
+          How to Measure Your Space for Cabinet Design
         </h2>
         <p className="mt-4 text-center text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
           You don't need to be precise to the millimeter. Approximate measurements are a good start —
