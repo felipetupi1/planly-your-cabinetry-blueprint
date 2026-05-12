@@ -47,7 +47,7 @@ export function Portfolio() {
             <X className="w-8 h-8" />
           </button>
           <div className="max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-            <img src={lightbox.src} alt={lightbox.spaceType} className="w-full rounded-lg" />
+            <img src={lightbox.src} alt={`${lightbox.spaceType} cabinet design ${lightbox.category === 'render' ? '3D render' : 'documents'} — ${lightbox.description}`} className="w-full rounded-lg" />
             <div className="mt-4 flex items-center gap-3">
               <span className="text-xs font-medium px-3 py-1 rounded-full bg-background/20 text-background">
                 {lightbox.spaceType}
@@ -81,7 +81,7 @@ function PortfolioGrid({
           <div className="aspect-[4/3] overflow-hidden bg-secondary">
             <img
               src={item.src}
-              alt={item.spaceType}
+              alt={`${item.spaceType} cabinet design ${item.category === 'render' ? '3D render' : 'documents'} — ${item.description}`}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
             />
