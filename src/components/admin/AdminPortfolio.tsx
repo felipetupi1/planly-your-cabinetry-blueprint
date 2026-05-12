@@ -195,7 +195,7 @@ function PortfolioRow({
       <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab flex-shrink-0" />
       <img
         src={item.preview}
-        alt=""
+        alt={`${item.spaceType} cabinet design portfolio preview`}
         className="w-20 h-14 object-cover rounded-lg flex-shrink-0"
       />
       <div className="flex-1 grid grid-cols-2 gap-2">
