@@ -19,13 +19,110 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "ProfessionalService",
+      "@type": "Organization",
+      "@id": "https://yourmeasured.com/#organization",
       "name": "Measured",
+      "alternateName": "Measured Cabinetry Design",
       "url": "https://yourmeasured.com",
-      "description": "Professional online cabinetry design service delivering construction-ready documents for kitchens, closets, offices, and more.",
-      "priceRange": "$200-$850",
-      "areaServed": "US",
-      "serviceType": "Cabinetry Design"
+      "logo": "https://yourmeasured.com/favicon.ico",
+      "description": "Professional online cabinetry design service delivering construction-ready floor plans, elevations, and documents for kitchens, closets, bathrooms, pantries, and more. Every project is reviewed by an architect and cabinetry shop owner with 20+ years of hands-on experience.",
+      "email": "hello@yourmeasured.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "hello@yourmeasured.com",
+        "availableLanguage": ["English"]
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "@id": "https://yourmeasured.com/#service",
+      "name": "Measured Cabinetry Design Service",
+      "provider": {
+        "@id": "https://yourmeasured.com/#organization"
+      },
+      "serviceType": "Cabinetry Design",
+      "areaServed": {
+        "@type": "Country",
+        "name": "United States"
+      },
+      "description": "Get construction-ready cabinetry documents delivered in 7 business days. Includes floor plans, sections, elevations, and construction-ready PDF + DWG files. Two revision rounds included. Ready to take to any cabinetmaker of your choice anywhere in the US.",
+      "termsOfService": "7 business day delivery from payment. Two rounds of revisions with approval required at each stage. Final delivery within 5 days after approval.",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Cabinetry Design Packages",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Kitchen Cabinet Design",
+              "description": "Custom kitchen cabinetry design with floor plans, elevations, and construction-ready documents for any size kitchen."
+            },
+            "price": "350",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2026-12-31"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Closet Built-In Design",
+              "description": "Walk-in and reach-in closet built-in storage design with custom cabinetry elevations and contractor-ready drawings."
+            },
+            "price": "250",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2026-12-31"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Bathroom Vanity Cabinet Design",
+              "description": "Bathroom floating vanity and custom storage cabinet design documents with plumbing rough-in details."
+            },
+            "price": "200",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2026-12-31"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Pantry Cabinet Design",
+              "description": "Floor-to-ceiling custom pantry cabinet design drawings with pull-out drawers and optimized storage layouts."
+            },
+            "price": "200",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2026-12-31"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Home Office Built-In Design",
+              "description": "Custom home office built-in desk and wall shelving unit design with construction-ready millwork documents."
+            },
+            "price": "250",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2026-12-31"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mudroom Storage Design",
+              "description": "Custom mudroom built-in storage design with bench, hooks, and cabinetry optimized for entryways."
+            },
+            "price": "200",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2026-12-31"
+          }
+        ]
+      }
     }
     </script>
     <meta property="og:title" content="Measured — Professional Cabinetry Projects Online">
