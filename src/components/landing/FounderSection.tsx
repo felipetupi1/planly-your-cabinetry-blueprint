@@ -21,7 +21,7 @@ export function FounderSection() {
             <div className="absolute -inset-3 rounded-2xl border border-accent/10" />
             <img
               src={felipePhoto}
-              alt="Felipe — Founder of Measured"
+              alt="Felipe — Founder of Measured, professional cabinetry design service"
               className="relative rounded-xl w-full object-cover object-top"
               style={{ maxHeight: "520px" }}
             />
