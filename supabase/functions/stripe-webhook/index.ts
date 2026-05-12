@@ -148,6 +148,16 @@ Deno.serve(async (req) => {
 
       console.log(`Project ${project.id} created for ${clientEmail}`);
 
+      // Mark lead as converted
+      try {
+        await supabase
+          .from("leads")
+          .update({ converted: true })
+          .eq("email", clientEmail.toLowerCase());
+      } catch (leadErr) {
+        console.error("Lead conversion update failed:", leadErr);
+      }
+
       // Send confirmation email via Resend
       const resendApiKey = Deno.env.get("RESEND_API_KEY");
       if (resendApiKey) {
