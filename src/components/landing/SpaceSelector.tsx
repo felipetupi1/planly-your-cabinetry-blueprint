@@ -72,6 +72,25 @@ export function SpaceSelector() {
     );
   };
 
+  const upsertLead = async (nameVal: string, emailVal: string) => {
+    const email = emailVal.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    try {
+      await supabase
+        .from("leads")
+        .upsert(
+          {
+            name: nameVal.trim() || null,
+            email,
+            spaces_selected: selectedSpaces as any,
+          },
+          { onConflict: "email" }
+        );
+    } catch (err) {
+      console.error("Lead upsert failed", err);
+    }
+  };
+
   const subtotal = selectedSpaces.reduce((sum, s) => sum + s.price + (s.render3d ? 150 : 0), 0);
   const discount = getDiscount(selectedSpaces.length);
   const total = subtotal * (1 - discount);
