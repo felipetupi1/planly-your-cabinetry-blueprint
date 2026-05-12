@@ -199,12 +199,14 @@ export function SpaceSelector() {
                 placeholder="Your name"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
+                onBlur={(e) => upsertLead(e.target.value, clientEmail)}
               />
               <Input
                 placeholder="Your email"
                 type="email"
                 value={clientEmail}
                 onChange={(e) => setClientEmail(e.target.value)}
+                onBlur={(e) => upsertLead(clientName, e.target.value)}
               />
             </div>
 
