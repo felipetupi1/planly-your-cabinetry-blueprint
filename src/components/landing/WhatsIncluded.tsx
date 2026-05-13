@@ -14,7 +14,7 @@ export function WhatsIncluded() {
         <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
           What's Included in Your Cabinetry Design Package
         </h2>
-        <div className="mt-12 grid sm:grid-cols-2 gap-5">
+        <div className="mt-12 grid md:grid-cols-2 gap-5">
           {items.map((item, i) => (
             <div key={i} className="flex items-start gap-4 p-5 bg-background rounded-lg border border-border">
               <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">

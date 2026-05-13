@@ -71,7 +71,7 @@ function PortfolioGrid({
   onSelect: (item: PortfolioItem) => void;
 }) {
   return (
-    <div className="grid sm:grid-cols-2 gap-5">
+    <div className="grid md:grid-cols-2 gap-5">
       {items.map((item) => (
         <button
           key={item.id}
