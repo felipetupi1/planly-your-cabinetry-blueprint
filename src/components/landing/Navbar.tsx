@@ -55,19 +55,20 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background px-6 py-4 space-y-3">
+        <div className="md:hidden border-t border-border bg-background w-full px-6 py-4 space-y-3">
           {links.map((link) => (
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
-              className="block text-sm text-muted-foreground hover:text-foreground tracking-wide"
+              className="block w-full text-left text-sm text-muted-foreground hover:text-foreground tracking-wide py-2"
             >
               {link.label}
             </button>
           ))}
           <Link
             to="/login"
-            className="block text-sm text-muted-foreground hover:text-foreground tracking-wide"
+            onClick={() => setMobileOpen(false)}
+            className="block w-full text-left text-sm text-muted-foreground hover:text-foreground tracking-wide py-2"
           >
             Sign in
           </Link>
