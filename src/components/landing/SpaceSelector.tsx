@@ -106,9 +106,151 @@ export function SpaceSelector() {
   const discount = getDiscount(selectedSpaces.length);
   const total = subtotal * (1 - discount);
 
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: {
+          spaces: selectedSpaces.map((s) => ({
+            name: s.name,
+            size: s.size,
+            price: s.price,
+            render3d: s.render3d,
+          })),
+          clientName: clientName.trim(),
+          clientEmail: clientEmail.trim(),
+          originUrl: window.location.origin,
+        },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank") || (window.location.href = data.url);
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: "Checkout failed", description: err.message, variant: "destructive" });
+      setCheckoutLoading(false);
+    }
+  };
+
+  const scrollToSummary = () => {
+    document.getElementById("order-summary-mobile")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // Shared sidebar/summary content. `dark` = navy variant for desktop sidebar.
+  const renderSummary = (dark: boolean) => {
+    const baseText = dark ? "text-white" : "text-foreground";
+    const subText = dark ? "text-white/60" : "text-muted-foreground";
+    const divider = dark ? "border-white/10" : "border-border";
+    const inputCls = dark
+      ? "bg-white/5 border-white/15 text-white placeholder:text-white/40 focus-visible:ring-white/30"
+      : "";
+
+    if (selectedSpaces.length === 0) {
+      return (
+        <div className={`${baseText}`}>
+          <h3 className="text-lg font-medium tracking-wide">Your project</h3>
+          <p className={`mt-2 text-sm font-light ${subText}`}>
+            Select a space to start your order. Multi-space discounts apply automatically.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={baseText}>
+        <h3 className="text-lg font-medium tracking-wide">Your project</h3>
+        <div className={`mt-4 space-y-2 max-h-[40vh] lg:max-h-[45vh] overflow-y-auto pr-1`}>
+          {selectedSpaces.map((s, i) => (
+            <div key={i} className={`flex items-start justify-between gap-3 py-2 border-b ${divider} last:border-0`}>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm">{s.name}</div>
+                <div className={`text-xs font-light ${subText}`}>{SIZE_LABELS[s.size]}</div>
+                <button
+                  onClick={() => toggleRender(i)}
+                  className={`mt-1.5 text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
+                    s.render3d
+                      ? "bg-accent text-accent-foreground border-accent"
+                      : `${divider} ${subText} hover:border-accent hover:text-accent`
+                  }`}
+                >
+                  <CuboidIcon className="w-3 h-3 inline mr-1" />
+                  3D +$150
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm w-14 text-right">
+                  ${s.price + (s.render3d ? 150 : 0)}
+                </span>
+                <button
+                  onClick={() => removeSpace(i)}
+                  className={`${subText} hover:text-destructive`}
+                  aria-label="Remove"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className={`mt-4 pt-4 border-t ${divider} space-y-1`}>
+          {discount > 0 && (
+            <div className="flex justify-between text-xs">
+              <span className={dark ? "text-accent" : "text-success font-medium"}>
+                Multi-space discount ({Math.round(discount * 100)}% off)
+              </span>
+              <span className={dark ? "text-accent" : "text-success font-medium"}>
+                -${(subtotal * discount).toFixed(0)}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between text-base font-medium">
+            <span>Total</span>
+            <span>${total.toFixed(0)}</span>
+          </div>
+        </div>
+
+        <div className={`mt-4 pt-4 border-t ${divider} space-y-2`}>
+          <Input
+            placeholder="Your name"
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
+            onBlur={(e) => upsertLead(e.target.value, clientEmail)}
+            className={inputCls}
+          />
+          <Input
+            placeholder="Your email"
+            type="email"
+            value={clientEmail}
+            onChange={(e) => setClientEmail(e.target.value)}
+            onBlur={(e) => upsertLead(clientName, e.target.value)}
+            className={inputCls}
+          />
+        </div>
+
+        <p className={`text-[10px] font-light mt-3 leading-relaxed ${subText}`}>
+          Projects are based on client-provided measurements. An on-site measurement visit by your cabinetmaker prior to fabrication is always recommended.
+        </p>
+
+        <Button
+          variant="hero"
+          className="w-full mt-3"
+          disabled={checkoutLoading || !clientName.trim() || !clientEmail.trim()}
+          onClick={handleCheckout}
+        >
+          {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+          {checkoutLoading ? "Redirecting…" : "Proceed to checkout"}
+        </Button>
+      </div>
+    );
+  };
+
   return (
-    <section id="space-selector" className="py-24 px-6">
-      <div className="max-w-5xl mx-auto">
+    <section id="space-selector" className="py-24 px-6 pb-32 lg:pb-24">
+      <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-medium text-center text-foreground tracking-wide">
           Custom Cabinetry Design Pricing — Choose Your Space
         </h2>
@@ -116,154 +258,82 @@ export function SpaceSelector() {
           Choose your rooms and sizes. Multi-space discounts apply automatically.
         </p>
 
-        <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {SPACES.map((space) => (
-            <SpaceCard
-              key={space.name}
-              space={space}
-              onAdd={addSpace}
-              selectedCount={selectedSpaces.filter((s) => s.name === space.name).length}
-            />
-          ))}
-
-          {/* Custom Space card */}
-          <div className="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors flex flex-col">
-            <h4 className="font-medium text-foreground">Custom Space</h4>
-            <p className="text-xs text-muted-foreground mt-1 flex-1">Don't see your space? Let us know.</p>
-            <button
-              onClick={() => setShowCustom(!showCustom)}
-              className="mt-4 flex items-center justify-center gap-1 text-sm font-medium text-accent hover:text-accent/80 transition-colors"
-            >
-              <MessageSquare className="w-4 h-4" />
-              Request quote
-            </button>
-          </div>
-        </div>
-
-        {showCustom && (
-          <div className="mt-6 max-w-md mx-auto border border-border rounded-lg p-6">
-            <h3 className="font-medium text-foreground">Custom Space Request</h3>
-            <p className="mt-1 text-sm text-muted-foreground font-light">Tell us about your space and we'll send you a quote.</p>
-            <div className="mt-4 space-y-3">
-              <Input placeholder="Space name (e.g. Laundry Room)" />
-              <Input placeholder="Your email" type="email" />
-              <textarea
-                placeholder="Describe the space and what you need..."
-                rows={3}
-                className="w-full border border-border rounded-lg p-3 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-              />
-              <Button variant="hero" className="w-full">Send request</Button>
-            </div>
-          </div>
-        )}
-
-        {selectedSpaces.length > 0 && (
-          <div className="mt-12 border border-border rounded-lg p-6 max-w-2xl mx-auto">
-            <h3 className="text-xl font-medium text-foreground">Your project</h3>
-            <div className="mt-4 space-y-3">
-              {selectedSpaces.map((s, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                  <div className="flex-1">
-                    <span className="font-medium text-foreground">{s.name}</span>
-                    <span className="text-muted-foreground text-sm ml-2 font-light">{SIZE_LABELS[s.size]}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => toggleRender(i)}
-                      className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                        s.render3d
-                          ? "bg-accent text-accent-foreground border-accent"
-                          : "border-border text-muted-foreground hover:border-accent hover:text-accent"
-                      }`}
-                    >
-                      <CuboidIcon className="w-3 h-3 inline mr-1" />
-                      3D +$150
-                    </button>
-                    <span className="text-foreground font-medium w-16 text-right">
-                      ${s.price + (s.render3d ? 150 : 0)}
-                    </span>
-                    <button onClick={() => removeSpace(i)} className="text-muted-foreground hover:text-destructive">
-                      <Minus className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+        <div className="mt-12 lg:grid lg:grid-cols-[1fr_340px] lg:gap-8 lg:items-start">
+          <div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {SPACES.map((space) => (
+                <SpaceCard
+                  key={space.name}
+                  space={space}
+                  onAdd={addSpace}
+                  selectedCount={selectedSpaces.filter((s) => s.name === space.name).length}
+                />
               ))}
-            </div>
 
-            <div className="mt-4 pt-4 border-t border-border space-y-1">
-              {discount > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-success font-medium">
-                    Multi-space discount ({Math.round(discount * 100)}% off)
-                  </span>
-                  <span className="text-success font-medium">-${(subtotal * discount).toFixed(0)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-lg font-medium text-foreground">
-                <span>Total</span>
-                <span>${total.toFixed(0)}</span>
+              {/* Custom Space card */}
+              <div className="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors flex flex-col">
+                <h4 className="font-medium text-foreground">Custom Space</h4>
+                <p className="text-xs text-muted-foreground mt-1 flex-1">Don't see your space? Let us know.</p>
+                <button
+                  onClick={() => setShowCustom(!showCustom)}
+                  className="mt-4 flex items-center justify-center gap-1 text-sm font-medium text-accent hover:text-accent/80 transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Request quote
+                </button>
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-border space-y-3">
-              <Input
-                placeholder="Your name"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                onBlur={(e) => upsertLead(e.target.value, clientEmail)}
-              />
-              <Input
-                placeholder="Your email"
-                type="email"
-                value={clientEmail}
-                onChange={(e) => setClientEmail(e.target.value)}
-                onBlur={(e) => upsertLead(clientName, e.target.value)}
-              />
+            {showCustom && (
+              <div className="mt-6 max-w-md mx-auto border border-border rounded-lg p-6">
+                <h3 className="font-medium text-foreground">Custom Space Request</h3>
+                <p className="mt-1 text-sm text-muted-foreground font-light">Tell us about your space and we'll send you a quote.</p>
+                <div className="mt-4 space-y-3">
+                  <Input placeholder="Space name (e.g. Laundry Room)" />
+                  <Input placeholder="Your email" type="email" />
+                  <textarea
+                    placeholder="Describe the space and what you need..."
+                    rows={3}
+                    className="w-full border border-border rounded-lg p-3 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                  />
+                  <Button variant="hero" className="w-full">Send request</Button>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile/tablet inline summary */}
+            <div id="order-summary-mobile" className="lg:hidden mt-10">
+              {selectedSpaces.length > 0 && (
+                <div className="border border-border rounded-lg p-6">
+                  {renderSummary(false)}
+                </div>
+              )}
             </div>
+          </div>
 
-            <p className="text-[10px] text-muted-foreground font-light mt-4 leading-relaxed">
-              Projects are based on client-provided measurements. An on-site measurement visit by your cabinetmaker prior to fabrication is always recommended.
-            </p>
+          {/* Desktop sticky sidebar */}
+          <aside className="hidden lg:block sticky top-24">
+            <div className="rounded-lg p-6" style={{ backgroundColor: "#1a2332" }}>
+              {renderSummary(true)}
+            </div>
+          </aside>
+        </div>
+      </div>
 
-            <Button
-              variant="hero"
-              className="w-full mt-4"
-              disabled={checkoutLoading || !clientName.trim() || !clientEmail.trim()}
-              onClick={async () => {
-                setCheckoutLoading(true);
-                try {
-                  const { data, error } = await supabase.functions.invoke("create-checkout", {
-                    body: {
-                      spaces: selectedSpaces.map((s) => ({
-                        name: s.name,
-                        size: s.size,
-                        price: s.price,
-                        render3d: s.render3d,
-                      })),
-                      clientName: clientName.trim(),
-                      clientEmail: clientEmail.trim(),
-                      originUrl: window.location.origin,
-                    },
-                  });
-                  if (error) throw error;
-                  if (data?.url) {
-                    window.open(data.url, '_blank') || (window.location.href = data.url);
-                  } else {
-                    throw new Error("No checkout URL returned");
-                  }
-                } catch (err: any) {
-                  console.error(err);
-                  toast({ title: "Checkout failed", description: err.message, variant: "destructive" });
-                  setCheckoutLoading(false);
-                }
-              }}
-            >
-              {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {checkoutLoading ? "Redirecting…" : "Proceed to checkout"}
+      {/* Mobile sticky bottom bar */}
+      {selectedSpaces.length > 0 && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 px-4 py-3 border-t border-white/10" style={{ backgroundColor: "#1a2332" }}>
+          <div className="flex items-center justify-between gap-3 max-w-xl mx-auto">
+            <div className="text-white">
+              <div className="text-[10px] uppercase tracking-[2px] text-white/60">Total</div>
+              <div className="text-lg font-medium leading-tight">${total.toFixed(0)}</div>
+            </div>
+            <Button variant="hero" onClick={scrollToSummary} className="flex-1 max-w-[220px]">
+              Checkout
             </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }
