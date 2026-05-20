@@ -259,8 +259,8 @@ export function SpaceSelector() {
           Choose your rooms and sizes. Multi-space discounts apply automatically.
         </p>
 
-        <div className="mt-12 lg:grid lg:grid-cols-[1fr_340px] lg:gap-8 lg:items-start">
-          <div>
+        <div className="mt-12 lg:grid lg:grid-cols-3 lg:gap-8 lg:items-start">
+          <div className="lg:col-span-2">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {SPACES.map((space) => (
                 <SpaceCard
