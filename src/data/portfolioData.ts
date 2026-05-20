@@ -59,14 +59,14 @@ export const portfolioItems: PortfolioItem[] = [
   },
   {
     id: "d2",
-    src: "https://drive.google.com/uc?export=view&id=1px5x-JRw0ngs3iJthkD0PLeUBEneODd2",
+    src: CLOSET_3,
     category: "document",
     spaceType: "Closet",
     description: "Section detail and cabinet elevations",
   },
   {
     id: "d3",
-    src: "https://drive.google.com/uc?export=view&id=1UkpQJXKvWkRDQ1XQF-n0OHBaG8gquwFN",
+    src: CLOSET_3,
     category: "document",
     spaceType: "Bathroom",
     description: "Vanity elevation with plumbing rough-in details",
