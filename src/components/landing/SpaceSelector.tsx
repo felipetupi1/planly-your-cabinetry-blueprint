@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, CuboidIcon, Calculator, MessageSquare, Loader2 } from "lucide-react";
+import { Minus, Plus, CuboidIcon, Calculator, MessageSquare, Loader2, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -168,17 +169,26 @@ export function SpaceSelector() {
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-sm">{s.name}</div>
                 <div className={`text-xs font-light ${subText}`}>{SIZE_LABELS[s.size]}</div>
-                <button
-                  onClick={() => toggleRender(i)}
-                  className={`mt-1.5 text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
-                    s.render3d
-                      ? "bg-accent text-accent-foreground border-accent"
-                      : `${divider} ${subText} hover:border-accent hover:text-accent`
-                  }`}
-                >
-                  <CuboidIcon className="w-3 h-3 inline mr-1" />
-                  3D +$150
-                </button>
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => toggleRender(i)}
+                        aria-pressed={s.render3d}
+                        className={`mt-1.5 inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
+                          s.render3d
+                            ? "border-transparent text-white"
+                            : `${divider} ${subText} hover:border-[#b85c38] hover:text-[#b85c38]`
+                        }`}
+                        style={s.render3d ? { backgroundColor: "#b85c38" } : undefined}
+                      >
+                        {s.render3d ? <Check className="w-3 h-3" /> : <CuboidIcon className="w-3 h-3" />}
+                        3D +$150
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">Add photorealistic 3D renders of your project</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm w-14 text-right">
