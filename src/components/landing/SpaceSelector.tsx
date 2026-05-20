@@ -329,7 +329,12 @@ export function SpaceSelector() {
               <div className="text-[10px] uppercase tracking-[2px] text-white/60">Total</div>
               <div className="text-lg font-medium leading-tight">${total.toFixed(0)}</div>
             </div>
-            <Button variant="hero" onClick={scrollToSummary} className="flex-1 max-w-[220px]">
+            <Button
+              variant="hero"
+              onClick={scrollToSummary}
+              className="flex-1 max-w-[220px] text-white hover:opacity-90"
+              style={{ backgroundColor: "#b85c38" }}
+            >
               Checkout
             </Button>
           </div>
