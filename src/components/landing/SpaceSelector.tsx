@@ -237,7 +237,8 @@ export function SpaceSelector() {
 
         <Button
           variant="hero"
-          className="w-full mt-3"
+          className="w-full mt-3 text-white hover:opacity-90"
+          style={{ backgroundColor: "#b85c38" }}
           disabled={checkoutLoading || !clientName.trim() || !clientEmail.trim()}
           onClick={handleCheckout}
         >
