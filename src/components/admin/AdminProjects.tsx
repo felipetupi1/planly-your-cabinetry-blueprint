@@ -55,6 +55,10 @@ export function AdminProjects() {
   const statuses = ["all", "Payment", "Brief", "In Progress", "1st Draft", "Revision 1", "Revision 2", "Final Production", "Delivered"];
   const filtered = filter === "all" ? projects : projects.filter((p) => p.stage === filter);
 
+  if (selectedId) {
+    return <AdminProjectDetail projectId={selectedId} onBack={() => setSelectedId(null)} />;
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between">
