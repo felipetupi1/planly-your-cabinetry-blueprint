@@ -36,11 +36,10 @@ export default function Success() {
     }
 
     async function fetchProject() {
-      const { data: proj, error: projErr } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("access_token", token!)
-        .maybeSingle();
+      const { data: projRows, error: projErr } = await supabase
+        .rpc("get_project_by_token", { _token: token! });
+
+      const proj = Array.isArray(projRows) ? projRows[0] : projRows;
 
       if (projErr) {
         console.error("Error fetching project:", projErr);
@@ -54,14 +53,12 @@ export default function Success() {
         return;
       }
 
-      setProject(proj);
+      setProject(proj as ProjectData);
 
       const { data: sp } = await supabase
-        .from("spaces")
-        .select("id, space_label, size, price, render_3d")
-        .eq("project_id", proj.id);
+        .rpc("get_spaces_by_token", { _token: token! });
 
-      setSpaces(sp || []);
+      setSpaces((sp as SpaceData[]) || []);
       setLoading(false);
     }
 
