@@ -28,6 +28,7 @@ export function AdminProjects() {
   const [filter, setFilter] = useState("all");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
