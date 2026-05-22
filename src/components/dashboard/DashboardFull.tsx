@@ -121,9 +121,12 @@ function ScanCard({ spaceLabel, projectId, spaceKey, scanStatus, scanLink, floor
   const handleGenerateLink = async () => {
     setLoading(true);
     try {
+      const accessToken = new URLSearchParams(window.location.search).get("token") || undefined;
       const { data, error } = await supabase.functions.invoke("cubicasa-gotoscan", {
-        body: { projectId, spaceKey, spaceLabel },
+        body: { projectId, spaceKey, spaceLabel, accessToken },
       });
+
+
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
