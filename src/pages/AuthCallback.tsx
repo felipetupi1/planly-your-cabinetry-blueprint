@@ -19,11 +19,11 @@ export default function AuthCallback() {
 
       const userEmail = session.user.email;
 
-      // Check if user is a team member
+      // Check if user is a team member (scoped by user_id under new RLS)
       const { data: teamMember } = await supabase
         .from("team_members")
         .select("id, role")
-        .eq("email", userEmail!)
+        .eq("user_id", session.user.id)
         .maybeSingle();
 
       if (teamMember) {
@@ -32,10 +32,10 @@ export default function AuthCallback() {
       }
 
       // Check if they have a project by email
+      // RLS lets the authenticated client read only their own project rows
       const { data: project } = await supabase
         .from("projects")
         .select("access_token")
-        .eq("client_email", userEmail!)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();

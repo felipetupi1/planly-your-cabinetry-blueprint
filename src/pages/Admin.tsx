@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 import { AdminPortfolio } from "@/components/admin/AdminPortfolio";
 import { AdminProjects } from "@/components/admin/AdminProjects";
 import { AdminFinancial } from "@/components/admin/AdminFinancial";
 import { AdminReviews } from "@/components/admin/AdminReviews";
 import { AdminCMS } from "@/components/admin/AdminCMS";
 import { AdminSettings } from "@/components/admin/AdminSettings";
-
-const ADMIN_PASSWORD = "measured2024";
 
 const adminSections = [
   { id: "projects", label: "Projects" },
@@ -20,48 +19,62 @@ const adminSections = [
 ];
 
 export default function Admin() {
-  const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
   const [activeSection, setActiveSection] = useState("projects");
-  const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setError("");
-    } else {
-      setError("Incorrect password");
-    }
+  useEffect(() => {
+    let mounted = true;
+
+    const verify = async (userId: string | undefined) => {
+      if (!userId) {
+        if (mounted) { setAuthorized(false); setChecking(false); }
+        return;
+      }
+      const { data } = await supabase
+        .from("team_members")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!mounted) return;
+      setAuthorized(!!data);
+      setChecking(false);
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      verify(session?.user?.id);
+    });
+
+    supabase.auth.getSession().then(({ data }) => verify(data.session?.user?.id));
+
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
   };
 
-  if (!isAuthenticated) {
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-xs text-muted-foreground tracking-wide">Checking access…</p>
+      </div>
+    );
+  }
+
+  if (!authorized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Admin Access</h1>
-            <p className="text-sm text-muted-foreground">
-              Enter the admin password to continue
-            </p>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={error ? "border-red-500" : ""}
-              />
-              {error && (
-                <p className="text-sm text-red-500">{error}</p>
-              )}
-            </div>
-            <Button type="submit" className="w-full">
-              Sign in
-            </Button>
-          </form>
+        <div className="w-full max-w-sm space-y-6 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">Admin Access</h1>
+          <p className="text-sm text-muted-foreground">
+            You need to sign in with a team account to access this area.
+          </p>
+          <Link to="/login">
+            <Button className="w-full">Go to sign in</Button>
+          </Link>
         </div>
       </div>
     );
@@ -106,6 +119,12 @@ export default function Admin() {
             </button>
           ))}
         </nav>
+        <button
+          onClick={handleSignOut}
+          className="text-[10px] tracking-[2px] uppercase text-white/40 hover:text-white px-5 py-4 text-left"
+        >
+          Sign out
+        </button>
       </aside>
 
       <div className="flex-1 flex flex-col min-h-screen bg-background">

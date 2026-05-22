@@ -87,18 +87,15 @@ export function SpaceSelector() {
       const email = emailVal.trim().toLowerCase();
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
       try {
-        await supabase
-          .from("leads")
-          .upsert(
-            {
-              name: nameVal.trim() || null,
-              email,
-              spaces_selected: selectedSpaces as any,
-            },
-            { onConflict: "email" }
-          );
+        // Insert-only (anon can no longer update existing leads, by design).
+        // Duplicate emails are silently ignored.
+        await supabase.from("leads").insert({
+          name: nameVal.trim() || null,
+          email,
+          spaces_selected: selectedSpaces as any,
+        });
       } catch (err) {
-        console.error("Lead upsert failed", err);
+        // Expected on duplicate email; safe to ignore.
       }
     }, 500);
   };

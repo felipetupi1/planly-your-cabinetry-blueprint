@@ -721,16 +721,18 @@ function SectionBrief({ project, spaces }: { project: ProjectData; spaces: Space
   const isComplete=(key: string)=>spaceData[key]?.description?.trim().length>0;
   const allComplete=purchasedSpaces.every(s=>isComplete(s.key));
   const handleSave=async()=>{
-    // Save each space's data to Supabase
+    // Save each space's data via token RPC (works for anon access via URL token)
     for (const s of spaces) {
       const sd = spaceData[s.space_key];
       if (!sd) continue;
-      await supabase.from("spaces").update({
-        description: sd.description,
-        room_data: { room: sd.room, walls: sd.walls, appliances: sd.appliances } as any,
-        scan_status: sd.scanStatus || "idle",
-        scan_link: sd.scanLink || null,
-      }).eq("id", s.id);
+      await supabase.rpc("update_space_brief_by_token", {
+        _token: project.access_token,
+        _space_id: s.id,
+        _description: sd.description,
+        _room_data: { room: sd.room, walls: sd.walls, appliances: sd.appliances } as any,
+        _scan_status: sd.scanStatus || "idle",
+        _scan_link: sd.scanLink || null,
+      });
     }
     setSaved(true);setTimeout(()=>setSaved(false),2500);
   };
@@ -869,13 +871,14 @@ export default function Dashboard(){
   useEffect(() => {
     if (!token) { setError("No access token provided."); setLoading(false); return; }
     (async () => {
-      const { data: proj, error: projErr } = await supabase
-        .from("projects").select("*").eq("access_token", token).single();
+      const { data: projRows, error: projErr } = await supabase
+        .rpc("get_project_by_token", { _token: token });
+      const proj = (Array.isArray(projRows) ? projRows[0] : projRows) as ProjectData | null;
       if (projErr || !proj) { setError("Project not found."); setLoading(false); return; }
       setProject(proj);
       const { data: sp } = await supabase
-        .from("spaces").select("*").eq("project_id", proj.id);
-      setSpaces(sp || []);
+        .rpc("get_spaces_by_token", { _token: token });
+      setSpaces((sp as SpaceData[]) || []);
       setLoading(false);
     })();
   }, [token]);

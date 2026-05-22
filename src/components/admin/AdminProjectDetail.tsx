@@ -27,6 +27,7 @@ export function AdminProjectDetail({ projectId, onBack }: Props) {
   const [messages, setMessages] = useState<any[]>([]);
   const [notes, setNotes] = useState<any[]>([]);
   const [files, setFiles] = useState<any[]>([]);
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
   const [newMessage, setNewMessage] = useState("");
   const [newNote, setNewNote] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -45,6 +46,18 @@ export function AdminProjectDetail({ projectId, onBack }: Props) {
     setMessages(msgs || []);
     setNotes(nts || []);
     setFiles(fls || []);
+
+    // Generate signed URLs for the (now private) bucket
+    const urls: Record<string, string> = {};
+    await Promise.all(
+      (fls || []).map(async (f: any) => {
+        const { data } = await supabase.storage
+          .from("project-files")
+          .createSignedUrl(`${projectId}/${f.name}`, 3600);
+        if (data?.signedUrl) urls[f.name] = data.signedUrl;
+      })
+    );
+    setFileUrls(urls);
     setLoading(false);
   };
 
@@ -102,8 +115,7 @@ export function AdminProjectDetail({ projectId, onBack }: Props) {
     load();
   };
 
-  const fileUrl = (name: string) =>
-    supabase.storage.from("project-files").getPublicUrl(`${projectId}/${name}`).data.publicUrl;
+  const fileUrl = (name: string) => fileUrls[name] || "#";
 
   const deleteFile = async (name: string) => {
     await supabase.storage.from("project-files").remove([`${projectId}/${name}`]);
