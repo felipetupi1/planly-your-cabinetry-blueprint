@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "authorization, x-client-info, apikey, content-type, stripe-signature, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface SpaceItem {
@@ -26,11 +26,9 @@ function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: s
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:40px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;">
-  <!-- Header -->
   <tr><td style="background-color:#1e3a5f;padding:32px 40px;text-align:center;">
     <h1 style="margin:0;font-size:24px;color:#ffffff;font-weight:700;letter-spacing:0.5px;">MEASURED</h1>
   </td></tr>
-  <!-- Body -->
   <tr><td style="padding:40px;">
     <p style="font-size:16px;color:#333;margin:0 0 20px;">Hi ${clientName},</p>
     <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 20px;">
@@ -40,7 +38,6 @@ function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: s
     <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 28px;">
       Your personal dashboard is ready. Click below to get started by submitting your project brief:
     </p>
-    <!-- CTA -->
     <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
       <a href="${dashboardUrl}" target="_blank"
          style="display:inline-block;background-color:#c1440e;color:#ffffff;font-size:16px;font-weight:600;
@@ -52,7 +49,6 @@ function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: s
       Your first draft will be ready within <strong>7 business days</strong>. We'll notify you as soon as it's available for review.
     </p>
   </td></tr>
-  <!-- Footer -->
   <tr><td style="background-color:#1e3a5f;padding:24px 40px;text-align:center;">
     <p style="margin:0;font-size:13px;color:#a0b4c8;">© ${new Date().getFullYear()} Measured. All rights reserved.</p>
   </td></tr>
@@ -73,14 +69,26 @@ Deno.serve(async (req) => {
 
     const body = await req.text();
     const sig = req.headers.get("stripe-signature");
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+
+    // SECURITY: Always require signature verification. Never trust an unsigned payload.
+    if (!webhookSecret || !sig) {
+      console.error("Stripe webhook rejected: missing signature or secret");
+      return new Response(
+        JSON.stringify({ error: "Webhook signature verification required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     let event: Stripe.Event;
-
-    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-    if (webhookSecret && sig) {
+    try {
       event = await stripe.webhooks.constructEventAsync(body, sig, webhookSecret);
-    } else {
-      event = JSON.parse(body) as Stripe.Event;
+    } catch (verifyErr) {
+      console.error("Stripe signature verification failed:", verifyErr);
+      return new Response(
+        JSON.stringify({ error: "Invalid signature" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     if (event.type === "checkout.session.completed") {
@@ -107,7 +115,6 @@ Deno.serve(async (req) => {
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
       );
 
-      // Create project
       const { data: project, error: projectError } = await supabase
         .from("projects")
         .insert({
@@ -128,7 +135,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Create spaces
       const spaceRows = spaces.map((s) => ({
         project_id: project.id,
         space_key: s.name.toLowerCase().replace(/[^a-z0-9]/g, "-"),
@@ -138,17 +144,11 @@ Deno.serve(async (req) => {
         render_3d: s.render3d,
       }));
 
-      const { error: spacesError } = await supabase
-        .from("spaces")
-        .insert(spaceRows);
-
-      if (spacesError) {
-        console.error("Spaces insert error:", spacesError);
-      }
+      const { error: spacesError } = await supabase.from("spaces").insert(spaceRows);
+      if (spacesError) console.error("Spaces insert error:", spacesError);
 
       console.log(`Project ${project.id} created for ${clientEmail}`);
 
-      // Mark lead as converted
       try {
         await supabase
           .from("leads")
@@ -158,7 +158,6 @@ Deno.serve(async (req) => {
         console.error("Lead conversion update failed:", leadErr);
       }
 
-      // Send confirmation email via Resend
       const resendApiKey = Deno.env.get("RESEND_API_KEY");
       if (resendApiKey) {
         const dashboardUrl = `https://millwork-maker-pro.lovable.app/dashboard?token=${accessToken}`;
