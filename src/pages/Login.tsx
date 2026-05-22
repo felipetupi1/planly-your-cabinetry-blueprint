@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,9 +55,14 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-background">
       <div className="w-full max-w-sm">
-        <h1 className="text-[11px] font-medium tracking-[4px] uppercase text-foreground text-center">
-          MEASURED
-        </h1>
+        <Link to="/" className="block text-center">
+          <h1 className="text-[11px] font-medium tracking-[4px] uppercase text-foreground">
+            MEASURED
+          </h1>
+        </Link>
+        <Link to="/" className="mt-1 block text-center text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+          ← Back to yourmeasured.com
+        </Link>
         <p className="mt-2 text-center text-xs text-muted-foreground">
           {mode === "client" ? "Access your project" : "Team sign in"}
         </p>
