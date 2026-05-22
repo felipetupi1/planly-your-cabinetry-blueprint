@@ -60,6 +60,11 @@ export function HeroSection() {
           <span className="font-medium">knowing exactly what you want.</span>
         </h1>
 
+        {/* Pill badge */}
+        <div className="mt-8 mb-2 inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-[#b85c38]/40 bg-[#faf8f5] text-[11px] tracking-wide text-muted-foreground">
+          100% online · Available anywhere in the US
+        </div>
+
         {/* Divider */}
         <div className="flex items-center justify-center gap-4 mt-10 mb-10">
           <div className="h-px w-16 bg-border" />
