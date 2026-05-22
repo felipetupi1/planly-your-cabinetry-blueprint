@@ -253,7 +253,95 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_messages_by_token: {
+        Args: { _token: string }
+        Returns: {
+          content: string
+          created_at: string | null
+          from_role: string
+          id: string
+          project_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_project_by_token: {
+        Args: { _token: string }
+        Returns: {
+          access_token: string
+          client_email: string
+          client_name: string
+          created_at: string | null
+          deadline: string | null
+          id: string
+          notes: string | null
+          stage: string
+          stripe_session_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "projects"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_spaces_by_token: {
+        Args: { _token: string }
+        Returns: {
+          description: string | null
+          floor_plan_url: string | null
+          id: string
+          price: number | null
+          project_id: string | null
+          render_3d: boolean | null
+          room_data: Json | null
+          scan_link: string | null
+          scan_status: string | null
+          size: string | null
+          space_key: string
+          space_label: string
+          submitted_at: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "spaces"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      insert_message_by_token: {
+        Args: { _content: string; _token: string }
+        Returns: {
+          content: string
+          created_at: string | null
+          from_role: string
+          id: string
+          project_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      is_team_member: { Args: never; Returns: boolean }
+      update_space_brief_by_token: {
+        Args: {
+          _description: string
+          _room_data: Json
+          _scan_link: string
+          _scan_status: string
+          _space_id: string
+          _token: string
+        }
+        Returns: undefined
+      }
+      user_owns_project: { Args: { _project_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
