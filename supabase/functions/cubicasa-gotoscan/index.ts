@@ -6,17 +6,70 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { projectId, spaceKey, spaceLabel } = await req.json();
+    const { projectId, spaceKey, spaceLabel, accessToken } = await req.json();
 
-    if (!projectId || !spaceKey) {
+    // Input validation
+    if (!projectId || !spaceKey || typeof projectId !== "string" || typeof spaceKey !== "string") {
       return new Response(JSON.stringify({ error: "Missing projectId or spaceKey" }), {
         status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (!UUID_RE.test(projectId)) {
+      return new Response(JSON.stringify({ error: "Invalid projectId" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (spaceKey.length > 100 || !/^[a-z0-9-]+$/i.test(spaceKey)) {
+      return new Response(JSON.stringify({ error: "Invalid spaceKey" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+    // AUTHORIZATION: caller must be either a team member OR pass an access_token matching the project.
+    let authorized = false;
+
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const jwt = authHeader.replace("Bearer ", "");
+      const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!);
+      const { data: userData } = await anonClient.auth.getUser(jwt);
+      if (userData?.user) {
+        const { data: tm } = await serviceClient
+          .from("team_members")
+          .select("id")
+          .eq("user_id", userData.user.id)
+          .maybeSingle();
+        if (tm) authorized = true;
+      }
+    }
+
+    if (!authorized && accessToken && UUID_RE.test(accessToken)) {
+      const { data: proj } = await serviceClient
+        .from("projects")
+        .select("id")
+        .eq("id", projectId)
+        .eq("access_token", accessToken)
+        .maybeSingle();
+      if (proj) authorized = true;
+    }
+
+    if (!authorized) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -29,7 +82,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Step 1: Get a GoToScan token from CubiCasa
     const tokenRes = await fetch("https://api.cubi.casa/conversion/gotoscan/token", {
       method: "GET",
       headers: { "X-API-KEY": cubicasaApiKey },
@@ -48,10 +100,11 @@ Deno.serve(async (req) => {
     const goToScanToken = tokenData.token || tokenData;
     console.log("CubiCasa token obtained successfully");
 
-    // Step 2: Build the GoToScan link
     const externalId = `${projectId}-${spaceKey}-${Date.now()}`;
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const webhookUrl = `${supabaseUrl}/functions/v1/cubicasa-webhook`;
+    const webhookSecret = Deno.env.get("CUBICASA_WEBHOOK_SECRET");
+    const webhookUrl = webhookSecret
+      ? `${supabaseUrl}/functions/v1/cubicasa-webhook?secret=${encodeURIComponent(webhookSecret)}`
+      : `${supabaseUrl}/functions/v1/cubicasa-webhook`;
 
     const params = new URLSearchParams({
       token: typeof goToScanToken === "string" ? goToScanToken : JSON.stringify(goToScanToken),
@@ -63,18 +116,9 @@ Deno.serve(async (req) => {
 
     const scanLink = `https://gotoscan.io/scan/?${params.toString()}`;
 
-    // Step 3: Update the spaces table
-    const supabase = createClient(
-      supabaseUrl,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    const { error: updateError } = await supabase
+    const { error: updateError } = await serviceClient
       .from("spaces")
-      .update({
-        scan_status: "pending",
-        scan_link: scanLink,
-      })
+      .update({ scan_status: "pending", scan_link: scanLink })
       .eq("project_id", projectId)
       .eq("space_key", spaceKey);
 
