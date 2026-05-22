@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminProjectDetail } from "./AdminProjectDetail";
 
 interface Project {
   id: string;
@@ -27,6 +28,7 @@ export function AdminProjects() {
   const [filter, setFilter] = useState("all");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -52,6 +54,10 @@ export function AdminProjects() {
 
   const statuses = ["all", "Payment", "Brief", "In Progress", "1st Draft", "Revision 1", "Revision 2", "Final Production", "Delivered"];
   const filtered = filter === "all" ? projects : projects.filter((p) => p.stage === filter);
+
+  if (selectedId) {
+    return <AdminProjectDetail projectId={selectedId} onBack={() => setSelectedId(null)} />;
+  }
 
   return (
     <div>
@@ -114,7 +120,7 @@ export function AdminProjects() {
                     <td className="p-4 text-muted-foreground font-light">{dateStr}</td>
                     <td className="p-4 text-right text-foreground font-medium">${total}</td>
                     <td className="p-4 text-right">
-                      <Button variant="outline" size="sm">Manage</Button>
+                      <Button variant="outline" size="sm" onClick={() => setSelectedId(p.id)}>Manage</Button>
                     </td>
                   </tr>
                 );
