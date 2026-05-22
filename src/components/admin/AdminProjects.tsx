@@ -120,7 +120,7 @@ export function AdminProjects() {
                     <td className="p-4 text-muted-foreground font-light">{dateStr}</td>
                     <td className="p-4 text-right text-foreground font-medium">${total}</td>
                     <td className="p-4 text-right">
-                      <Button variant="outline" size="sm">Manage</Button>
+                      <Button variant="outline" size="sm" onClick={() => setSelectedId(p.id)}>Manage</Button>
                     </td>
                   </tr>
                 );
