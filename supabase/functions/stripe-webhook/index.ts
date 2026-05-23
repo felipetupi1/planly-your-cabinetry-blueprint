@@ -14,10 +14,20 @@ interface SpaceItem {
   render3d: boolean;
 }
 
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: string): string {
   const spacesList = spaces
-    .map((s) => `<li style="padding:4px 0;font-size:15px;color:#333;">${s.name} — ${s.size}${s.render3d ? ' (+ 3D Render)' : ''}</li>`)
+    .map((s) => `<li style="padding:4px 0;font-size:15px;color:#333;">${escapeHtml(s.name)} — ${escapeHtml(s.size)}${s.render3d ? ' (+ 3D Render)' : ''}</li>`)
     .join("");
+  const safeName = escapeHtml(clientName);
 
   return `<!DOCTYPE html>
 <html>
