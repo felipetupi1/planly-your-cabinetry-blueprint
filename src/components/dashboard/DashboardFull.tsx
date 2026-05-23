@@ -875,29 +875,27 @@ export default function Dashboard(){
     console.log('[Dashboard] token:', token, 'querying projects...');
     if (!token) { setError("No access token provided."); setLoading(false); return; }
     (async () => {
-      const { data: projData, error: projErr } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("access_token", token)
-        .maybeSingle();
-      console.log('[Dashboard] project result:', JSON.stringify(projData), 'error:', JSON.stringify(projErr));
+      const { data: projRows, error: projErr } = await supabase
+        .rpc("get_project_by_token", { _token: String(token) });
+      const proj: any = (Array.isArray(projRows) ? projRows[0] : projRows) ?? null;
+      console.log('[Dashboard] project result:', JSON.stringify(projRows), 'error:', JSON.stringify(projErr));
       if (projErr) {
         console.log('[Dashboard] error:', JSON.stringify(projErr));
         setError("Project not found.");
         setLoading(false);
         return;
       }
-      if (!projData) {
+      if (!proj) {
         setError("Project not found.");
         setLoading(false);
         return;
       }
-      setProject(projData as ProjectData);
-      const { data: sp } = await supabase
+      setProject(proj as ProjectData);
+      const { data: spacesData } = await supabase
         .from("spaces")
         .select("*")
-        .eq("project_id", projData.id);
-      setSpaces((sp as SpaceData[]) || []);
+        .eq("project_id", proj.id);
+      setSpaces((spacesData as SpaceData[]) || []);
       setLoading(false);
     })();
   }, [token]);
