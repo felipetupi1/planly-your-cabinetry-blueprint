@@ -872,8 +872,10 @@ export default function Dashboard(){
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('[Dashboard] token:', token, 'calling RPC...');
     if (!token) { setError("No access token provided."); setLoading(false); return; }
     (async () => {
+      console.log('[Dashboard] invoking get_project_by_token with', token);
       const { data: projRows, error: projErr } = await supabase
         .rpc("get_project_by_token", { _token: token });
       const proj = (Array.isArray(projRows) ? projRows[0] : projRows) as ProjectData | null;
