@@ -883,7 +883,7 @@ export default function Dashboard(){
       if (projErr || !proj) { setError("Project not found."); setLoading(false); return; }
       setProject(proj);
       const { data: sp } = await supabase
-        .rpc("get_spaces_by_token", { _token: token });
+        .rpc("get_spaces_by_token", { _token: String(token) });
       setSpaces((sp as SpaceData[]) || []);
       setLoading(false);
     })();
