@@ -40,7 +40,7 @@ function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: s
     <h1 style="margin:0;font-size:24px;color:#ffffff;font-weight:700;letter-spacing:0.5px;">MEASURED</h1>
   </td></tr>
   <tr><td style="padding:40px;">
-    <p style="font-size:16px;color:#333;margin:0 0 20px;">Hi ${clientName},</p>
+    <p style="font-size:16px;color:#333;margin:0 0 20px;">Hi ${safeName},</p>
     <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 20px;">
       Thank you — your payment has been received and your project is now set up! Here's what you ordered:
     </p>
