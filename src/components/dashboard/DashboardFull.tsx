@@ -896,7 +896,7 @@ export default function Dashboard(){
       const { data: sp } = await supabase
         .from("spaces")
         .select("*")
-        .eq("project_id", proj.id);
+        .eq("project_id", projData.id);
       setSpaces((sp as SpaceData[]) || []);
       setLoading(false);
     })();
