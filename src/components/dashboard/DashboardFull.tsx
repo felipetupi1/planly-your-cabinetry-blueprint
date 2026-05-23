@@ -878,6 +878,7 @@ export default function Dashboard(){
       console.log('[Dashboard] invoking get_project_by_token with', token);
       const { data: projRows, error: projErr } = await supabase
         .rpc("get_project_by_token", { _token: token });
+      console.log('[Dashboard] RPC result:', JSON.stringify(projRows), 'error:', JSON.stringify(projErr));
       const proj = (Array.isArray(projRows) ? projRows[0] : projRows) as ProjectData | null;
       if (projErr || !proj) { setError("Project not found."); setLoading(false); return; }
       setProject(proj);
