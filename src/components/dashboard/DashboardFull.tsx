@@ -872,22 +872,26 @@ export default function Dashboard(){
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('[Dashboard] token:', token, 'calling RPC...');
+    console.log('[Dashboard] token:', token, 'querying projects...');
     if (!token) { setError("No access token provided."); setLoading(false); return; }
     (async () => {
-      console.log('[Dashboard] invoking get_project_by_token with', token);
-      const { data: projRows, error: projErr } = await supabase
-        .rpc("get_project_by_token", { _token: String(token) });
-      console.log('[Dashboard] RPC result:', JSON.stringify(projRows), 'error:', JSON.stringify(projErr));
-      const proj = (Array.isArray(projRows) ? projRows[0] : projRows) as ProjectData | null;
+      const { data: proj, error: projErr } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("access_token", token)
+        .maybeSingle();
+      console.log('[Dashboard] project result:', JSON.stringify(proj), 'error:', JSON.stringify(projErr));
       if (projErr || !proj) { setError("Project not found."); setLoading(false); return; }
-      setProject(proj);
+      setProject(proj as ProjectData);
       const { data: sp } = await supabase
-        .rpc("get_spaces_by_token", { _token: String(token) });
+        .from("spaces")
+        .select("*")
+        .eq("project_id", proj.id);
       setSpaces((sp as SpaceData[]) || []);
       setLoading(false);
     })();
   }, [token]);
+
 
   if (loading) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontFamily:"'Outfit', system-ui, sans-serif",color:C.muted}}>Loading...</div>;
   if (error || !project) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",fontFamily:"'Outfit', system-ui, sans-serif",color:C.accent}}>{error || "Project not found."}</div>;
