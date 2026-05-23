@@ -55,6 +55,14 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (typeof clientName !== "string" || clientName.length > 200 ||
+        typeof clientEmail !== "string" || clientEmail.length > 254) {
+      return new Response(JSON.stringify({ error: "Invalid name or email" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Build line items
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 

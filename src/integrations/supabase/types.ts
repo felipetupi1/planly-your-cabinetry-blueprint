@@ -180,6 +180,7 @@ export type Database = {
           space_key: string
           space_label: string
           submitted_at: string | null
+          webhook_token: string | null
         }
         Insert: {
           description?: string | null
@@ -195,6 +196,7 @@ export type Database = {
           space_key: string
           space_label: string
           submitted_at?: string | null
+          webhook_token?: string | null
         }
         Update: {
           description?: string | null
@@ -210,6 +212,7 @@ export type Database = {
           space_key?: string
           space_label?: string
           submitted_at?: string | null
+          webhook_token?: string | null
         }
         Relationships: [
           {
@@ -275,19 +278,12 @@ export type Database = {
           access_token: string
           client_email: string
           client_name: string
-          created_at: string | null
-          deadline: string | null
+          created_at: string
+          deadline: string
           id: string
-          notes: string | null
+          notes: string
           stage: string
-          stripe_session_id: string | null
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "projects"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       get_spaces_by_token: {
         Args: { _token: string }
@@ -305,6 +301,7 @@ export type Database = {
           space_key: string
           space_label: string
           submitted_at: string | null
+          webhook_token: string | null
         }[]
         SetofOptions: {
           from: "*"

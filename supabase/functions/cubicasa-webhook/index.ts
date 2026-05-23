@@ -31,24 +31,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // AUTH: validate shared secret (sent via ?secret= query or x-cubicasa-secret header).
-    // Configured at scan-link generation time in cubicasa-gotoscan.
-    const expectedSecret = Deno.env.get("CUBICASA_WEBHOOK_SECRET");
-    if (expectedSecret) {
-      const url = new URL(req.url);
-      const providedSecret =
-        url.searchParams.get("secret") || req.headers.get("x-cubicasa-secret");
-      if (providedSecret !== expectedSecret) {
-        console.error("cubicasa-webhook rejected: invalid secret");
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-    } else {
-      console.warn(
-        "CUBICASA_WEBHOOK_SECRET not configured — relying on defense-in-depth (pending-status check + URL allowlist)."
-      );
+    // AUTH: require per-scan token (?t=...) which must match spaces.webhook_token
+    const url = new URL(req.url);
+    const providedToken = url.searchParams.get("t");
+    if (!providedToken) {
+      console.error("cubicasa-webhook rejected: missing token");
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const payload = await req.json();
@@ -83,10 +74,10 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Defense-in-depth: only accept updates for spaces with a pending scan.
+    // Defense-in-depth: only accept updates for spaces with a pending scan AND matching token.
     const { data: existing, error: lookupErr } = await supabase
       .from("spaces")
-      .select("id, scan_status")
+      .select("id, scan_status, webhook_token")
       .eq("project_id", projectId)
       .eq("space_key", spaceKey)
       .maybeSingle();
@@ -95,6 +86,14 @@ Deno.serve(async (req) => {
       console.error("Space lookup failed:", lookupErr);
       return new Response(JSON.stringify({ error: "Unknown space" }), {
         status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!existing.webhook_token || existing.webhook_token !== providedToken) {
+      console.error("cubicasa-webhook rejected: token mismatch");
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -112,7 +111,8 @@ Deno.serve(async (req) => {
       console.warn(`Rejecting floor plan URL from disallowed host: ${rawUrl}`);
     }
 
-    const updateData: Record<string, any> = { scan_status: "received" };
+    // Clear webhook_token on success so it can't be replayed.
+    const updateData: Record<string, any> = { scan_status: "received", webhook_token: null };
     if (floorPlanUrl) updateData.floor_plan_url = floorPlanUrl;
 
     const { error: updateError } = await supabase

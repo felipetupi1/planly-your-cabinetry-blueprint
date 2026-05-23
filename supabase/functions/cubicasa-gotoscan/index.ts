@@ -101,10 +101,10 @@ Deno.serve(async (req) => {
     console.log("CubiCasa token obtained successfully");
 
     const externalId = `${projectId}-${spaceKey}-${Date.now()}`;
-    const webhookSecret = Deno.env.get("CUBICASA_WEBHOOK_SECRET");
-    const webhookUrl = webhookSecret
-      ? `${supabaseUrl}/functions/v1/cubicasa-webhook?secret=${encodeURIComponent(webhookSecret)}`
-      : `${supabaseUrl}/functions/v1/cubicasa-webhook`;
+    // Per-scan random token (NOT the global secret) embedded in webhook URL.
+    // Webhook validates by comparing against spaces.webhook_token for the target row.
+    const webhookToken = crypto.randomUUID();
+    const webhookUrl = `${supabaseUrl}/functions/v1/cubicasa-webhook?t=${webhookToken}`;
 
     const params = new URLSearchParams({
       token: typeof goToScanToken === "string" ? goToScanToken : JSON.stringify(goToScanToken),
@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
 
     const { error: updateError } = await serviceClient
       .from("spaces")
-      .update({ scan_status: "pending", scan_link: scanLink })
+      .update({ scan_status: "pending", scan_link: scanLink, webhook_token: webhookToken })
       .eq("project_id", projectId)
       .eq("space_key", spaceKey);
 

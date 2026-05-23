@@ -14,10 +14,20 @@ interface SpaceItem {
   render3d: boolean;
 }
 
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: string): string {
   const spacesList = spaces
-    .map((s) => `<li style="padding:4px 0;font-size:15px;color:#333;">${s.name} — ${s.size}${s.render3d ? ' (+ 3D Render)' : ''}</li>`)
+    .map((s) => `<li style="padding:4px 0;font-size:15px;color:#333;">${escapeHtml(s.name)} — ${escapeHtml(s.size)}${s.render3d ? ' (+ 3D Render)' : ''}</li>`)
     .join("");
+  const safeName = escapeHtml(clientName);
 
   return `<!DOCTYPE html>
 <html>
@@ -30,7 +40,7 @@ function buildEmailHtml(clientName: string, spaces: SpaceItem[], dashboardUrl: s
     <h1 style="margin:0;font-size:24px;color:#ffffff;font-weight:700;letter-spacing:0.5px;">MEASURED</h1>
   </td></tr>
   <tr><td style="padding:40px;">
-    <p style="font-size:16px;color:#333;margin:0 0 20px;">Hi ${clientName},</p>
+    <p style="font-size:16px;color:#333;margin:0 0 20px;">Hi ${safeName},</p>
     <p style="font-size:15px;color:#333;line-height:1.6;margin:0 0 20px;">
       Thank you — your payment has been received and your project is now set up! Here's what you ordered:
     </p>
