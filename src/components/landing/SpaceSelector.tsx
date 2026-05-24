@@ -403,6 +403,7 @@ function SpaceCard({
   const [calcOpen, setCalcOpen] = useState(false);
   const [width, setWidth] = useState("");
   const [length, setLength] = useState("");
+  const pendingCalcSizeRef = useRef<Size | null>(null);
 
   const ranges = SIZE_RANGES[space.name];
   const calcSqft =
@@ -414,10 +415,17 @@ function SpaceCard({
 
   const handleCalcApply = () => {
     if (calcSize && space.prices[calcSize] !== null) {
-      setSelectedSize(calcSize);
+      pendingCalcSizeRef.current = calcSize;
     }
     setCalcOpen(false);
   };
+
+  useEffect(() => {
+    if (!calcOpen && pendingCalcSizeRef.current) {
+      setSelectedSize(pendingCalcSizeRef.current);
+      pendingCalcSizeRef.current = null;
+    }
+  }, [calcOpen]);
 
   const currentPrice = space.prices[selectedSize];
 
@@ -447,7 +455,7 @@ function SpaceCard({
             <button
               key={size}
               onClick={() => setSelectedSize(size)}
-              className={`w-full text-left text-sm px-2.5 py-2 rounded-[2px] flex items-center gap-2.5 transition-colors border ${
+              className={`w-full text-left text-sm px-2 py-1.5 rounded-[2px] flex items-center gap-1.5 transition-colors border ${
                 isSelected
                   ? "border-transparent"
                   : "border-border text-muted-foreground hover:bg-secondary"
@@ -459,7 +467,7 @@ function SpaceCard({
               }
             >
               <span
-                className="inline-flex items-center justify-center w-6 h-6 rounded-[2px] text-[11px] font-semibold shrink-0"
+                className="inline-flex items-center justify-center w-6 h-6 rounded-[2px] text-[10px] font-semibold shrink-0"
                 style={
                   isSelected
                     ? { backgroundColor: TERRACOTTA, color: "#fff" }
@@ -468,13 +476,13 @@ function SpaceCard({
               >
                 {size.charAt(0).toUpperCase()}
               </span>
-              <span className="font-medium capitalize">{size}</span>
+              <span className="font-medium capitalize shrink-0">{size}</span>
               {rangeLabel && (
-                <span className="text-[11px] font-light opacity-80 truncate">
+                <span className="text-[10px] font-light opacity-80 whitespace-nowrap">
                   {rangeLabel}
                 </span>
               )}
-              <span className="ml-auto font-medium">${price}</span>
+              <span className="ml-auto font-medium shrink-0">${price}</span>
             </button>
           );
         })}
