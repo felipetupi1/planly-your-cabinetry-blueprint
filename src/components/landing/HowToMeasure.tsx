@@ -136,7 +136,7 @@ const diagrams = [
   {
     label: "Ceiling height",
     Diagram: CeilingHeightDiagram,
-    tip: "Measure from finished floor to finished ceiling — not to any beam, soffit, or HVAC duct.",
+    tip: "Measure from floor to ceiling. If there's a soffit or beam, measure to it as well — it limits how high upper cabinets can go.",
   },
   {
     label: "Doors & windows",
