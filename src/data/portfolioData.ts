@@ -30,13 +30,7 @@ export const portfolioItems: PortfolioItem[] = [
     description: "Walk-in closet with dark walnut built-ins",
   },
   {
-    id: "r3",
-    src: KITCHEN_2,
-    category: "render",
-    spaceType: "Home Office",
-    description: "Built-in desk and wall shelving unit",
-  },
-  {
+
     id: "r4",
     src: KITCHEN_3,
     category: "render",
