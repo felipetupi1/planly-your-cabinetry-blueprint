@@ -39,17 +39,21 @@ function CeilingHeightDiagram() {
       {/* floor band */}
       <rect x="20" y="130" width="200" height="10" fill={FG} />
       {/* soffit */}
-      <rect x="150" y="30" width="50" height="20" fill={SECONDARY} stroke={FG} strokeWidth="1" />
-      <text x="175" y="63" textAnchor="middle" fontSize="8" fill="hsl(0 70% 50%)">ignore this</text>
-      <line x1="175" y1="55" x2="175" y2="50" stroke="hsl(0 70% 50%)" strokeWidth="1" />
-      {/* height arrow */}
-      <line x1="70" y1="30" x2="70" y2="130" stroke={ACCENT} strokeWidth="1.5" />
-      <polygon points="70,30 67,36 73,36" fill={ACCENT} />
-      <polygon points="70,130 67,124 73,124" fill={ACCENT} />
-      <text x="82" y="83" fontSize="9" fill={ACCENT} fontWeight="500">height</text>
+      <rect x="140" y="30" width="60" height="22" fill={SECONDARY} stroke={FG} strokeWidth="1" />
+      <text x="170" y="44" textAnchor="middle" fontSize="8" fill={MUTED}>soffit</text>
+      {/* full height arrow (left) */}
+      <line x1="55" y1="30" x2="55" y2="130" stroke={ACCENT} strokeWidth="1.5" />
+      <polygon points="55,30 52,36 58,36" fill={ACCENT} />
+      <polygon points="55,130 52,124 58,124" fill={ACCENT} />
+      <text x="67" y="83" fontSize="9" fill={ACCENT} fontWeight="500">full height</text>
+      {/* height-to-soffit arrow (right, under soffit) */}
+      <line x1="170" y1="52" x2="170" y2="130" stroke={ACCENT} strokeWidth="1.5" />
+      <polygon points="170,52 167,58 173,58" fill={ACCENT} />
+      <polygon points="170,130 167,124 173,124" fill={ACCENT} />
+      <text x="178" y="94" fontSize="9" fill={ACCENT} fontWeight="500">height to soffit</text>
       {/* labels */}
       <text x="120" y="16" textAnchor="middle" fontSize="9" fill={MUTED}>finished ceiling</text>
-      <text x="120" y="153" textAnchor="middle" fontSize="9" fill={MUTED}>finished floor</text>
+      <text x="120" y="153" textAnchor="middle" fontSize="9" fill={MUTED} fontStyle="italic">measure both if present</text>
     </svg>
   );
 }
@@ -132,7 +136,7 @@ const diagrams = [
   {
     label: "Ceiling height",
     Diagram: CeilingHeightDiagram,
-    tip: "Measure from finished floor to finished ceiling — not to any beam, soffit, or HVAC duct.",
+    tip: "Measure from floor to ceiling. If there's a soffit or beam, measure to it as well — it limits how high upper cabinets can go.",
   },
   {
     label: "Doors & windows",
