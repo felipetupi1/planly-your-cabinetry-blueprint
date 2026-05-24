@@ -403,7 +403,6 @@ function SpaceCard({
   const [calcOpen, setCalcOpen] = useState(false);
   const [width, setWidth] = useState("");
   const [length, setLength] = useState("");
-  const pendingCalcSizeRef = useRef<Size | null>(null);
 
   const ranges = SIZE_RANGES[space.name];
   const calcSqft =
@@ -415,17 +414,11 @@ function SpaceCard({
 
   const handleCalcApply = () => {
     if (calcSize && space.prices[calcSize] !== null) {
-      pendingCalcSizeRef.current = calcSize;
+      setSelectedSize(calcSize);
+      onAdd(space, calcSize);
     }
     setCalcOpen(false);
   };
-
-  useEffect(() => {
-    if (!calcOpen && pendingCalcSizeRef.current) {
-      setSelectedSize(pendingCalcSizeRef.current);
-      pendingCalcSizeRef.current = null;
-    }
-  }, [calcOpen]);
 
   const currentPrice = space.prices[selectedSize];
 
@@ -455,7 +448,7 @@ function SpaceCard({
             <button
               key={size}
               onClick={() => setSelectedSize(size)}
-              className={`w-full text-left text-sm px-2 py-1.5 rounded-[2px] flex items-center gap-1.5 transition-colors border ${
+              className={`w-full text-left text-sm px-2 py-1.5 rounded-[2px] grid grid-cols-[24px_minmax(44px,auto)_minmax(0,1fr)_auto] items-center gap-1.5 transition-colors border ${
                 isSelected
                   ? "border-transparent"
                   : "border-border text-muted-foreground hover:bg-secondary"
@@ -476,13 +469,13 @@ function SpaceCard({
               >
                 {size.charAt(0).toUpperCase()}
               </span>
-              <span className="font-medium capitalize shrink-0">{size}</span>
+              <span className="font-medium capitalize whitespace-nowrap">{size}</span>
               {rangeLabel && (
-                <span className="text-[10px] font-light opacity-80 whitespace-nowrap">
+                <span className="text-[10px] font-light opacity-80 whitespace-nowrap overflow-visible min-w-0">
                   {rangeLabel}
                 </span>
               )}
-              <span className="ml-auto font-medium shrink-0">${price}</span>
+              <span className="font-medium justify-self-end whitespace-nowrap">${price}</span>
             </button>
           );
         })}
