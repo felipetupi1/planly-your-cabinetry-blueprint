@@ -403,7 +403,6 @@ function SpaceCard({
   const [calcOpen, setCalcOpen] = useState(false);
   const [width, setWidth] = useState("");
   const [length, setLength] = useState("");
-  const pendingCalcSizeRef = useRef<Size | null>(null);
 
   const ranges = SIZE_RANGES[space.name];
   const calcSqft =
@@ -420,13 +419,6 @@ function SpaceCard({
     }
     setCalcOpen(false);
   };
-
-  useEffect(() => {
-    if (!calcOpen && pendingCalcSizeRef.current) {
-      setSelectedSize(pendingCalcSizeRef.current);
-      pendingCalcSizeRef.current = null;
-    }
-  }, [calcOpen]);
 
   const currentPrice = space.prices[selectedSize];
 
