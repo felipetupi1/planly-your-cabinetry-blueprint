@@ -30,6 +30,23 @@ const SIZE_LABELS: Record<Size, string> = {
   large: "Large (over 160 sq/ft)",
 };
 
+// Per-space sq ft ranges by size (used for display/gating reference).
+type SizeRange = { small: string; medium: string; large: string; smallMax: number };
+const SIZE_RANGES: Record<string, SizeRange> = {
+  Kitchen:  { small: "< 100 sq ft", medium: "100–200 sq ft", large: "> 200 sq ft", smallMax: 100 },
+  Closet:   { small: "< 30 sq ft",  medium: "30–60 sq ft",   large: "> 60 sq ft",  smallMax: 30  },
+  Bathroom: { small: "< 50 sq ft",  medium: "50–100 sq ft",  large: "> 100 sq ft", smallMax: 50  },
+  Pantry:   { small: "< 25 sq ft",  medium: "25–50 sq ft",   large: "> 50 sq ft",  smallMax: 25  },
+};
+
+// Average sq ft used to compute estimated total area per selected space.
+const AVG_SQFT: Record<string, Record<Size, number>> = {
+  Kitchen:  { small: 50, medium: 150, large: 250 },
+  Closet:   { small: 15, medium: 45,  large: 80  },
+  Bathroom: { small: 25, medium: 75,  large: 125 },
+  Pantry:   { small: 12, medium: 37,  large: 65  },
+};
+
 interface SelectedSpace {
   name: string;
   size: Size;
@@ -103,6 +120,10 @@ export function SpaceSelector() {
   const subtotal = selectedSpaces.reduce((sum, s) => sum + s.price + (s.render3d ? 150 : 0), 0);
   const discount = getDiscount(selectedSpaces.length);
   const total = subtotal * (1 - discount);
+  const totalSqft = selectedSpaces.reduce(
+    (sum, s) => sum + (AVG_SQFT[s.name]?.[s.size] ?? 0),
+    0
+  );
 
   const handleCheckout = async () => {
     setCheckoutLoading(true);
@@ -216,7 +237,14 @@ export function SpaceSelector() {
           )}
           <div className="flex justify-between text-base font-medium">
             <span>Total</span>
-            <span>${total.toFixed(0)}</span>
+            <span>
+              {totalSqft > 0 && (
+                <span className={`mr-2 text-xs font-light ${subText}`}>
+                  ~{totalSqft} sq ft
+                </span>
+              )}
+              ${total.toFixed(0)}
+            </span>
           </div>
         </div>
 
@@ -334,7 +362,12 @@ export function SpaceSelector() {
           <div className="flex items-center justify-between gap-3 max-w-xl mx-auto">
             <div className="text-white">
               <div className="text-[10px] uppercase tracking-[2px] text-white/60">Total</div>
-              <div className="text-lg font-medium leading-tight">${total.toFixed(0)}</div>
+              <div className="text-lg font-medium leading-tight">
+                ${total.toFixed(0)}
+                {totalSqft > 0 && (
+                  <span className="ml-2 text-xs font-light text-white/60">~{totalSqft} sq ft</span>
+                )}
+              </div>
             </div>
             <Button
               variant="hero"
@@ -375,6 +408,7 @@ function SpaceCard({
   };
 
   const currentPrice = space.prices[selectedSize];
+  const ranges = SIZE_RANGES[space.name];
 
   return (
     <div className="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors relative">
@@ -384,23 +418,34 @@ function SpaceCard({
         </div>
       )}
       <h4 className="font-medium text-foreground">{space.name}</h4>
+      {ranges && (
+        <p className="text-[11px] text-accent mt-0.5 font-medium">
+          Up to {ranges.smallMax} sq ft
+        </p>
+      )}
       <p className="text-xs text-muted-foreground mt-1 font-light">{space.hint}</p>
 
       <div className="mt-4 space-y-1.5">
         {(["small", "medium", "large"] as Size[]).map((size) => {
           const price = space.prices[size];
           if (price === null) return null;
+          const rangeLabel = ranges?.[size];
           return (
             <button
               key={size}
               onClick={() => setSelectedSize(size)}
-              className={`w-full text-left text-sm px-3 py-2 rounded-lg flex justify-between transition-colors ${
+              className={`w-full text-left text-sm px-3 py-2 rounded-lg flex justify-between items-center gap-2 transition-colors ${
                 selectedSize === size
                   ? "bg-accent/10 text-accent font-medium"
                   : "text-muted-foreground hover:bg-secondary"
               }`}
             >
-              <span className="capitalize">{size}</span>
+              <span className="capitalize flex items-baseline gap-1.5">
+                {size.charAt(0).toUpperCase()}
+                {rangeLabel && (
+                  <span className="text-[11px] font-light opacity-80">({rangeLabel})</span>
+                )}
+              </span>
               <span>${price}</span>
             </button>
           );
