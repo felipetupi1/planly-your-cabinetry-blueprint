@@ -237,7 +237,14 @@ export function SpaceSelector() {
           )}
           <div className="flex justify-between text-base font-medium">
             <span>Total</span>
-            <span>${total.toFixed(0)}</span>
+            <span>
+              {totalSqft > 0 && (
+                <span className={`mr-2 text-xs font-light ${subText}`}>
+                  ~{totalSqft} sq ft
+                </span>
+              )}
+              ${total.toFixed(0)}
+            </span>
           </div>
         </div>
 
