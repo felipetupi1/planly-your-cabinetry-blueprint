@@ -2,7 +2,7 @@ import { FileText, Ruler, RefreshCcw, Clock } from "lucide-react";
 
 const items = [
   { icon: Ruler, text: "Floor plan, sections, and elevations" },
-  { icon: FileText, text: "Construction-ready documents (PDF + DWG)" },
+  { icon: FileText, text: "Construction-ready documents (PDF)" },
   { icon: RefreshCcw, text: "2 rounds of revisions with approval required at each stage" },
   { icon: Clock, text: "7 business day delivery from payment" },
 ];

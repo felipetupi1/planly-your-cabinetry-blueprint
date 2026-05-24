@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     q: "Can I use the project with any cabinetmaker?",
-    a: "Absolutely. The files are yours. PDF and DWG formats are industry-standard — any professional cabinetmaker or carpenter can work from them.",
+    a: "Absolutely. The files are yours. PDF is industry-standard — any professional cabinetmaker or carpenter can work from them.",
   },
   {
     q: "What happens after 2 revision rounds?",
