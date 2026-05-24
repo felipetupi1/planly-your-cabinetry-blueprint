@@ -408,6 +408,7 @@ function SpaceCard({
   };
 
   const currentPrice = space.prices[selectedSize];
+  const ranges = SIZE_RANGES[space.name];
 
   return (
     <div className="border border-border rounded-lg p-5 hover:border-accent/30 transition-colors relative">
@@ -417,23 +418,34 @@ function SpaceCard({
         </div>
       )}
       <h4 className="font-medium text-foreground">{space.name}</h4>
+      {ranges && (
+        <p className="text-[11px] text-accent mt-0.5 font-medium">
+          Up to {ranges.smallMax} sq ft
+        </p>
+      )}
       <p className="text-xs text-muted-foreground mt-1 font-light">{space.hint}</p>
 
       <div className="mt-4 space-y-1.5">
         {(["small", "medium", "large"] as Size[]).map((size) => {
           const price = space.prices[size];
           if (price === null) return null;
+          const rangeLabel = ranges?.[size];
           return (
             <button
               key={size}
               onClick={() => setSelectedSize(size)}
-              className={`w-full text-left text-sm px-3 py-2 rounded-lg flex justify-between transition-colors ${
+              className={`w-full text-left text-sm px-3 py-2 rounded-lg flex justify-between items-center gap-2 transition-colors ${
                 selectedSize === size
                   ? "bg-accent/10 text-accent font-medium"
                   : "text-muted-foreground hover:bg-secondary"
               }`}
             >
-              <span className="capitalize">{size}</span>
+              <span className="capitalize flex items-baseline gap-1.5">
+                {size.charAt(0).toUpperCase()}
+                {rangeLabel && (
+                  <span className="text-[11px] font-light opacity-80">({rangeLabel})</span>
+                )}
+              </span>
               <span>${price}</span>
             </button>
           );
