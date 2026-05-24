@@ -1,34 +1,155 @@
-const tips = [
+const ACCENT = "hsl(var(--accent))";
+const BORDER = "hsl(var(--border))";
+const MUTED = "hsl(var(--muted-foreground))";
+const FG = "hsl(var(--foreground))";
+const SECONDARY = "hsl(var(--secondary))";
+
+function FloorAreaDiagram() {
+  return (
+    <svg viewBox="0 0 240 160" className="w-full h-40">
+      {/* room */}
+      <rect x="40" y="30" width="160" height="100" fill={SECONDARY} stroke={FG} strokeWidth="1.5" />
+      {/* width arrow (top) */}
+      <line x1="40" y1="18" x2="200" y2="18" stroke={ACCENT} strokeWidth="1.5" />
+      <polygon points="40,18 46,15 46,21" fill={ACCENT} />
+      <polygon points="200,18 194,15 194,21" fill={ACCENT} />
+      <text x="120" y="13" textAnchor="middle" fontSize="9" fill={ACCENT} fontWeight="500">width</text>
+      {/* length arrow (right) */}
+      <line x1="212" y1="30" x2="212" y2="130" stroke={ACCENT} strokeWidth="1.5" />
+      <polygon points="212,30 209,36 215,36" fill={ACCENT} />
+      <polygon points="212,130 209,124 215,124" fill={ACCENT} />
+      <text x="222" y="83" textAnchor="middle" fontSize="9" fill={ACCENT} fontWeight="500" transform="rotate(90 222 83)">length</text>
+      {/* center text */}
+      <text x="120" y="78" textAnchor="middle" fontSize="9" fill={MUTED}>measure at</text>
+      <text x="120" y="90" textAnchor="middle" fontSize="9" fill={MUTED}>floor level</text>
+      {/* two measurement points */}
+      <circle cx="70" cy="50" r="3" fill={ACCENT} />
+      <circle cx="170" cy="110" r="3" fill={ACCENT} />
+      <line x1="70" y1="50" x2="170" y2="110" stroke={ACCENT} strokeWidth="1" strokeDasharray="3 3" />
+      <text x="120" y="118" textAnchor="middle" fontSize="8" fill={MUTED} fontStyle="italic">measure in 2 spots</text>
+    </svg>
+  );
+}
+
+function CeilingHeightDiagram() {
+  return (
+    <svg viewBox="0 0 240 160" className="w-full h-40">
+      {/* ceiling band */}
+      <rect x="20" y="20" width="200" height="10" fill={FG} />
+      {/* floor band */}
+      <rect x="20" y="130" width="200" height="10" fill={FG} />
+      {/* soffit */}
+      <rect x="150" y="30" width="50" height="20" fill={SECONDARY} stroke={FG} strokeWidth="1" />
+      <text x="175" y="63" textAnchor="middle" fontSize="8" fill="hsl(0 70% 50%)">ignore this</text>
+      <line x1="175" y1="55" x2="175" y2="50" stroke="hsl(0 70% 50%)" strokeWidth="1" />
+      {/* height arrow */}
+      <line x1="70" y1="30" x2="70" y2="130" stroke={ACCENT} strokeWidth="1.5" />
+      <polygon points="70,30 67,36 73,36" fill={ACCENT} />
+      <polygon points="70,130 67,124 73,124" fill={ACCENT} />
+      <text x="82" y="83" fontSize="9" fill={ACCENT} fontWeight="500">height</text>
+      {/* labels */}
+      <text x="120" y="16" textAnchor="middle" fontSize="9" fill={MUTED}>finished ceiling</text>
+      <text x="120" y="153" textAnchor="middle" fontSize="9" fill={MUTED}>finished floor</text>
+    </svg>
+  );
+}
+
+function DoorsWindowsDiagram() {
+  return (
+    <svg viewBox="0 0 240 160" className="w-full h-40">
+      {/* wall baseline */}
+      <line x1="15" y1="135" x2="225" y2="135" stroke={FG} strokeWidth="1.5" />
+      {/* door */}
+      <rect x="40" y="50" width="50" height="85" fill="hsl(0 0% 100%)" stroke={FG} strokeWidth="1.5" />
+      <line x1="40" y1="42" x2="90" y2="42" stroke={ACCENT} strokeWidth="1.5" />
+      <polygon points="40,42 46,39 46,45" fill={ACCENT} />
+      <polygon points="90,42 84,39 84,45" fill={ACCENT} />
+      <text x="65" y="35" textAnchor="middle" fontSize="8" fill={ACCENT}>trim to trim</text>
+      <text x="65" y="95" textAnchor="middle" fontSize="8" fill={MUTED}>door</text>
+      {/* window */}
+      <rect x="140" y="60" width="65" height="45" fill="hsl(210 80% 92%)" stroke={FG} strokeWidth="1.5" />
+      <line x1="140" y1="52" x2="205" y2="52" stroke={ACCENT} strokeWidth="1.5" />
+      <polygon points="140,52 146,49 146,55" fill={ACCENT} />
+      <polygon points="205,52 199,49 199,55" fill={ACCENT} />
+      <text x="172" y="45" textAnchor="middle" fontSize="8" fill={ACCENT}>trim to trim</text>
+      {/* sill height */}
+      <line x1="215" y1="105" x2="215" y2="135" stroke="hsl(210 70% 45%)" strokeWidth="1.5" />
+      <polygon points="215,105 212,111 218,111" fill="hsl(210 70% 45%)" />
+      <polygon points="215,135 212,129 218,129" fill="hsl(210 70% 45%)" />
+      <text x="223" y="123" fontSize="8" fill="hsl(210 70% 45%)">sill ht</text>
+    </svg>
+  );
+}
+
+function ObstaclesDiagram() {
+  return (
+    <svg viewBox="0 0 240 160" className="w-full h-40">
+      {/* wall (top view) */}
+      <rect x="20" y="30" width="200" height="14" fill={FG} />
+      {/* baseboard band */}
+      <rect x="20" y="44" width="200" height="6" fill={ACCENT} opacity="0.4" />
+      <line x1="230" y1="30" x2="230" y2="50" stroke={ACCENT} strokeWidth="1.2" />
+      <polygon points="230,30 227,36 233,36" fill={ACCENT} />
+      <polygon points="230,50 227,44 233,44" fill={ACCENT} />
+      <text x="225" y="65" textAnchor="end" fontSize="7" fill={ACCENT}>baseboard ht</text>
+
+      {/* radiator */}
+      <g transform="translate(45,80)">
+        <rect width="32" height="22" fill="none" stroke={FG} strokeWidth="1.2" />
+        <line x1="8" y1="0" x2="8" y2="22" stroke={FG} strokeWidth="1" />
+        <line x1="16" y1="0" x2="16" y2="22" stroke={FG} strokeWidth="1" />
+        <line x1="24" y1="0" x2="24" y2="22" stroke={FG} strokeWidth="1" />
+        <line x1="16" y1="22" x2="16" y2="44" stroke={MUTED} strokeWidth="1" strokeDasharray="2 2" />
+        <text x="16" y="56" textAnchor="middle" fontSize="8" fill={MUTED}>radiator</text>
+      </g>
+
+      {/* vent */}
+      <g transform="translate(105,82)">
+        <rect width="30" height="18" fill="none" stroke={FG} strokeWidth="1.2" />
+        <line x1="0" y1="6" x2="30" y2="6" stroke={FG} strokeWidth="1" />
+        <line x1="0" y1="12" x2="30" y2="12" stroke={FG} strokeWidth="1" />
+        <line x1="15" y1="18" x2="15" y2="42" stroke={MUTED} strokeWidth="1" strokeDasharray="2 2" />
+        <text x="15" y="54" textAnchor="middle" fontSize="8" fill={MUTED}>vent</text>
+      </g>
+
+      {/* pipe */}
+      <g transform="translate(170,80)">
+        <circle cx="12" cy="12" r="10" fill="none" stroke={FG} strokeWidth="1.2" />
+        <circle cx="12" cy="12" r="4" fill={SECONDARY} stroke={FG} strokeWidth="1" />
+        <line x1="12" y1="22" x2="12" y2="44" stroke={MUTED} strokeWidth="1" strokeDasharray="2 2" />
+        <text x="12" y="56" textAnchor="middle" fontSize="8" fill={MUTED}>pipe</text>
+      </g>
+    </svg>
+  );
+}
+
+const diagrams = [
   {
-    title: "Room dimensions",
-    text: "Measure width and length at floor level, not at ceiling height. Walls are rarely perfectly square, so measure in two spots if possible.",
+    label: "Floor area — length × width",
+    Diagram: FloorAreaDiagram,
+    tip: "Walls are rarely perfectly square. Measure in two spots and use the larger value.",
   },
   {
-    title: "Ceiling height",
-    text: "Essential if you want cabinetry that reaches the ceiling. Measure from finished floor to finished ceiling, not to any beam or soffit.",
+    label: "Ceiling height",
+    Diagram: CeilingHeightDiagram,
+    tip: "Measure from finished floor to finished ceiling — not to any beam, soffit, or HVAC duct.",
   },
   {
-    title: "Doors — think trim, not opening",
-    text: "Measure the full width and height from trim to trim, not just the opening. Note which way the door swings — it affects cabinet placement.",
+    label: "Doors & windows",
+    Diagram: DoorsWindowsDiagram,
+    tip: "Doors: measure trim-to-trim, including frame. Note which way it swings. Windows: measure trim-to-trim + sill height from floor.",
   },
   {
-    title: "Windows — sill matters",
-    text: "Measure width and height trim to trim. Also note the sill height from the floor — this determines how high base cabinets can go on that wall.",
-  },
-  {
-    title: "Baseboards — they take up space",
-    text: "Note the height and depth of your baseboards. Cabinets need to clear them or sit on top of them.",
-  },
-  {
-    title: "Obstacles worth noting",
-    text: "Radiators, vents, electrical panels, exposed pipes. Even a rough location on a sketch helps us work around them.",
+    label: "Obstacles & clearances",
+    Diagram: ObstaclesDiagram,
+    tip: "Note the height and depth of baseboards — cabinets need to clear them. Mark any pipe or vent locations on your sketch.",
   },
 ];
 
 export function HowToMeasure() {
   return (
     <section className="py-24 px-6 bg-secondary">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
 
         {/* Label */}
         <div className="flex items-center justify-center gap-3 mb-5">
@@ -40,20 +161,21 @@ export function HowToMeasure() {
         </div>
 
         <h2 className="text-3xl md:text-4xl font-light text-center text-foreground tracking-tight">
-          How to Measure Your Space for Cabinet Design
+          How to measure your space
         </h2>
         <p className="mt-4 text-center text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
-          You don't need to be precise to the millimeter. Approximate measurements are a good start —
-          and if you'd rather skip the tape measure entirely, you can scan your space in 3D directly
-          from your dashboard after signing up.
+          Approximate measurements are a good start — no need to be precise to the millimeter.
         </p>
 
-        <div className="mt-14 grid md:grid-cols-2 gap-4">
-          {tips.map((tip, i) => (
-            <div key={i} className="bg-background border border-border rounded-sm p-6">
-              <h3 className="font-medium text-foreground tracking-wide text-sm uppercase">{tip.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-light">
-                {tip.text}
+        <div className="mt-14 grid md:grid-cols-2 gap-5">
+          {diagrams.map(({ label, Diagram, tip }, i) => (
+            <div key={i} className="bg-background border border-border rounded-sm p-6 flex flex-col">
+              <h3 className="font-medium text-foreground tracking-widest text-[11px] uppercase">{label}</h3>
+              <div className="mt-4 flex-1 flex items-center justify-center">
+                <Diagram />
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground leading-relaxed font-light">
+                {tip}
               </p>
             </div>
           ))}
