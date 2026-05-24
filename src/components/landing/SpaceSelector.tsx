@@ -120,6 +120,10 @@ export function SpaceSelector() {
   const subtotal = selectedSpaces.reduce((sum, s) => sum + s.price + (s.render3d ? 150 : 0), 0);
   const discount = getDiscount(selectedSpaces.length);
   const total = subtotal * (1 - discount);
+  const totalSqft = selectedSpaces.reduce(
+    (sum, s) => sum + (AVG_SQFT[s.name]?.[s.size] ?? 0),
+    0
+  );
 
   const handleCheckout = async () => {
     setCheckoutLoading(true);
