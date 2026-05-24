@@ -362,7 +362,12 @@ export function SpaceSelector() {
           <div className="flex items-center justify-between gap-3 max-w-xl mx-auto">
             <div className="text-white">
               <div className="text-[10px] uppercase tracking-[2px] text-white/60">Total</div>
-              <div className="text-lg font-medium leading-tight">${total.toFixed(0)}</div>
+              <div className="text-lg font-medium leading-tight">
+                ${total.toFixed(0)}
+                {totalSqft > 0 && (
+                  <span className="ml-2 text-xs font-light text-white/60">~{totalSqft} sq ft</span>
+                )}
+              </div>
             </div>
             <Button
               variant="hero"
