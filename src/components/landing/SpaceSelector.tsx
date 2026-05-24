@@ -30,6 +30,23 @@ const SIZE_LABELS: Record<Size, string> = {
   large: "Large (over 160 sq/ft)",
 };
 
+// Per-space sq ft ranges by size (used for display/gating reference).
+type SizeRange = { small: string; medium: string; large: string; smallMax: number };
+const SIZE_RANGES: Record<string, SizeRange> = {
+  Kitchen:  { small: "< 100 sq ft", medium: "100–200 sq ft", large: "> 200 sq ft", smallMax: 100 },
+  Closet:   { small: "< 30 sq ft",  medium: "30–60 sq ft",   large: "> 60 sq ft",  smallMax: 30  },
+  Bathroom: { small: "< 50 sq ft",  medium: "50–100 sq ft",  large: "> 100 sq ft", smallMax: 50  },
+  Pantry:   { small: "< 25 sq ft",  medium: "25–50 sq ft",   large: "> 50 sq ft",  smallMax: 25  },
+};
+
+// Average sq ft used to compute estimated total area per selected space.
+const AVG_SQFT: Record<string, Record<Size, number>> = {
+  Kitchen:  { small: 50, medium: 150, large: 250 },
+  Closet:   { small: 15, medium: 45,  large: 80  },
+  Bathroom: { small: 25, medium: 75,  large: 125 },
+  Pantry:   { small: 12, medium: 37,  large: 65  },
+};
+
 interface SelectedSpace {
   name: string;
   size: Size;
